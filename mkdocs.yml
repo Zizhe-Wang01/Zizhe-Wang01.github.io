@@ -72,12 +72,12 @@ markdown_extensions:
 
 nav:
   - 首页: index.md
-  - 算法和Agent:
+  - 算法和 Agent:
       - ai/index.md
       - 强化学习系列:
-        - ai/reinforcement-learning.md
-        - "RL 01: Basic Concepts": ai/rl_01.md
-        - RLHF: ai/rlhf.md
+          - ai/reinforcement-learning.md
+          - "RL 01: Basic Concepts": ai/rl_01.md
+          - RLHF: ai/rlhf.md
       - Agentic RL 系列:
           - ai/agenticrl.md
           - 总述: ai/agenticrloverview.md
