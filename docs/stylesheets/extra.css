@@ -132,6 +132,12 @@
   padding: 0;
 }
 
+.md-sidebar--primary
+  .md-nav__item--section
+  > .md-nav__container {
+  margin-left: -0.45rem;
+}
+
 .md-sidebar--primary .md-nav__link--active {
   background: #e8f2f0;
   font-weight: 650;
