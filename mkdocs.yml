@@ -18,6 +18,9 @@ theme:
   name: material
   language: zh
   features:
+    - navigation.instant
+    - navigation.instant.prefetch
+    - navigation.instant.progress
     - navigation.tabs
     - navigation.indexes
     - navigation.sections

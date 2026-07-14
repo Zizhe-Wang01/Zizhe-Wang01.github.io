@@ -10,22 +10,28 @@ function enableSectionIndexLinks() {
       );
 
       if (!heading || !indexLink) return;
+      if (heading.dataset.sectionIndexEnabled === "true") return;
 
       section.classList.add("md-nav__item--section-index");
+      heading.dataset.sectionIndexEnabled = "true";
       heading.setAttribute("role", "link");
 
       heading.addEventListener("click", (event) => {
         if (!desktop.matches) return;
         event.preventDefault();
-        window.location.href = indexLink.href;
+        indexLink.click();
       });
 
       heading.addEventListener("keydown", (event) => {
         if (!desktop.matches || event.key !== "Enter") return;
         event.preventDefault();
-        window.location.href = indexLink.href;
+        indexLink.click();
       });
     });
 }
 
-document.addEventListener("DOMContentLoaded", enableSectionIndexLinks);
+if (typeof document$ !== "undefined") {
+  document$.subscribe(enableSectionIndexLinks);
+} else {
+  document.addEventListener("DOMContentLoaded", enableSectionIndexLinks);
+}
