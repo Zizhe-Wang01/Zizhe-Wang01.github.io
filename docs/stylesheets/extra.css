@@ -47,14 +47,14 @@
 
   /* The first child is the section's directory page, linked by its heading. */
   .md-sidebar--primary
-    .md-nav__item--section
+    .md-nav__item--section-index
     > .md-nav
     > .md-nav__list
     > .md-nav__item:first-child {
     display: none;
   }
 
-  .md-sidebar--primary .md-nav__item--section > .md-nav__link[for] {
+  .md-sidebar--primary .md-nav__item--section-index > .md-nav__link[for] {
     cursor: pointer;
     pointer-events: auto;
   }

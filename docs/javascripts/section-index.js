@@ -2,7 +2,7 @@ function enableSectionIndexLinks() {
   const desktop = window.matchMedia("(min-width: 76.25em)");
 
   document
-    .querySelectorAll(".md-sidebar--primary .md-nav__item--section")
+    .querySelectorAll(".md-sidebar--primary .md-nav__item--nested")
     .forEach((section) => {
       const heading = section.querySelector(":scope > .md-nav__link[for]");
       const indexLink = section.querySelector(
@@ -11,6 +11,7 @@ function enableSectionIndexLinks() {
 
       if (!heading || !indexLink) return;
 
+      section.classList.add("md-nav__item--section-index");
       heading.setAttribute("role", "link");
 
       heading.addEventListener("click", (event) => {
