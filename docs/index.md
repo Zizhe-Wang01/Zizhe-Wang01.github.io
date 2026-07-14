@@ -4,7 +4,7 @@
 
 <div class="grid cards" markdown>
 
--   :material-brain: **算法 与 Agent**
+-   :material-brain: **算法和 Agent**
 
     ---
 
