@@ -9,7 +9,8 @@ edit_uri: edit/main/docs/
 extra_javascript:
   - javascripts/mathjax.js
   - javascripts/section-index.js
-  - javascripts/pages-cms-edit.js
+  - javascripts/editor-config.js
+  - javascripts/site-editor.js
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 
 extra_css:
@@ -18,6 +19,7 @@ extra_css:
 theme:
   name: material
   language: zh
+  font: false
   features:
     - navigation.instant
     - navigation.instant.prefetch
@@ -94,3 +96,6 @@ nav:
       - Isaac Sim: robotics/isaac-sim.md
   - 随笔:
       - notes/index.md
+
+exclude_docs: |
+  editor/README.md
