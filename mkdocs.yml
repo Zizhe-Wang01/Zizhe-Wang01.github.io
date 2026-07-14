@@ -6,6 +6,10 @@ repo_name: Zizhe-Wang01/Zizhe-Wang01.github.io
 repo_url: https://github.com/Zizhe-Wang01/Zizhe-Wang01.github.io
 edit_uri: edit/main/docs/
 
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
+
 theme:
   name: material
   language: zh
@@ -48,6 +52,8 @@ markdown_extensions:
   - tables
   - toc:
       permalink: true
+  - pymdownx.arithmatex:
+      generic: true
   - pymdownx.details
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
