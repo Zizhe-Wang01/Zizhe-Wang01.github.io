@@ -1,7 +1,5 @@
 # Zosia's Notes
 
-这里记录我的学习过程、技术理解与日常思考。
-
 <div class="grid cards" markdown>
 
 -   :material-brain: **算法和 Agent**
