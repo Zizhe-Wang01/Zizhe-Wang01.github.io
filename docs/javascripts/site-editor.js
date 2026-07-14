@@ -1,9 +1,28 @@
 const notesEditor = {
   apiUrl: (window.ZOSIA_EDITOR_API || "").replace(/\/$/, ""),
   sessionKey: "zosia-notes-editor-session",
+  visibilityKey: "zosia-notes-editor-visible",
   pollTimer: null,
   baseline: null
 };
+
+function isSiteEditorVisible() {
+  const url = new URL(window.location.href);
+  const setting = url.searchParams.get("edit");
+
+  if (setting === "1") {
+    window.localStorage.setItem(notesEditor.visibilityKey, "true");
+  } else if (setting === "0") {
+    window.localStorage.removeItem(notesEditor.visibilityKey);
+  }
+
+  if (setting === "1" || setting === "0") {
+    url.searchParams.delete("edit");
+    history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+  }
+
+  return window.localStorage.getItem(notesEditor.visibilityKey) === "true";
+}
 
 function editorPathFromEditLink(link) {
   const url = new URL(link.href);
@@ -21,7 +40,11 @@ function editorUrl(path) {
 }
 
 function enableSiteEditLinks() {
+  const visible = isSiteEditorVisible();
+
   document.querySelectorAll('a[rel~="edit"]').forEach((link) => {
+    link.hidden = !visible;
+    if (!visible) return;
     if (link.dataset.siteEditorEnabled === "true") return;
     const path = editorPathFromEditLink(link);
     if (!path) return;
