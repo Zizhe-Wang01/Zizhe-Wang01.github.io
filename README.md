@@ -1,4 +1,4 @@
-# 王孜哲的个人笔记
+# Zosia's Notes
 
 这是一个使用 MkDocs Material 搭建的个人笔记网站。
 

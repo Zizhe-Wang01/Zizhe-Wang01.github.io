@@ -1,5 +1,5 @@
-site_name: zosia的个人网站
-site_description: zosia的个人网站
+site_name: Zosia's Notes
+site_description: Zosia's Notes
 site_url: https://zizhe-wang01.github.io/
 
 repo_name: Zizhe-Wang01/Zizhe-Wang01.github.io
@@ -9,6 +9,9 @@ edit_uri: edit/main/docs/
 extra_javascript:
   - javascripts/mathjax.js
   - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
+
+extra_css:
+  - stylesheets/extra.css
 
 theme:
   name: material
@@ -25,15 +28,15 @@ theme:
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
-      primary: indigo
-      accent: indigo
+      primary: black
+      accent: teal
       toggle:
         icon: material/brightness-7
         name: 切换到深色模式
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
-      primary: indigo
-      accent: indigo
+      primary: black
+      accent: teal
       toggle:
         icon: material/brightness-4
         name: 切换到浅色模式
