@@ -1,8 +1,21 @@
+---
+hide:
+  - toc
+---
+
 # 算法和 Agent
 
 强化学习和 Agentic RL 的学习笔记。
 
-## 主题
+## 目录
 
-- [强化学习系列](reinforcement-learning.md)
-- [Agentic RL 系列](agenticrl.md)
+<div class="topic-links">
+  <a href="reinforcement-learning/">
+    <strong>强化学习系列</strong>
+    <span>基础概念与 RLHF</span>
+  </a>
+  <a href="agenticrl/">
+    <strong>Agentic RL 系列</strong>
+    <span>总述与 Policy Gradient Loss</span>
+  </a>
+</div>

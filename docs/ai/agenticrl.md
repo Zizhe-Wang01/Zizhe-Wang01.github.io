@@ -1,3 +1,8 @@
+---
+hide:
+  - toc
+---
+
 # Agentic RL
 
 Agentic RL 相关笔记目录。
