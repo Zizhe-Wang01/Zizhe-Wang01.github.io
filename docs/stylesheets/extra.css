@@ -135,7 +135,7 @@
 .md-sidebar--primary
   .md-nav__item--section
   > .md-nav__container {
-  margin-left: -0.45rem;
+  margin-left: -0.9rem;
 }
 
 .md-sidebar--primary .md-nav__link--active {
@@ -167,6 +167,7 @@
   .md-nav__item--nested
   .md-nav__item:not(.md-nav__item--nested)
   > .md-nav__link {
+  margin-left: 0.65rem;
   font-size: 0.63rem;
   font-weight: 450;
 }
