@@ -18,6 +18,7 @@ theme:
   language: zh
   features:
     - navigation.tabs
+    - navigation.indexes
     - navigation.sections
     - navigation.top
     - navigation.footer
@@ -71,14 +72,15 @@ markdown_extensions:
 nav:
   - 首页: index.md
   - 算法和Agent:
-      - 总览: ai/index.md
+      - ai/index.md
       - 强化学习: ai/reinforcement-learning.md
-      - Agentic RL: ai/agenticrl.md
+      - Agentic RL:
+          - ai/agenticrl.md
           - Agentic RL 总述: ai/agenticrloverview.md
-          - Agentic RL 01: Policy Gradient Loss": ai/agenticrl_01.md
+          - "Agentic RL 01: Policy Gradient Loss": ai/agenticrl_01.md
       - RLHF: ai/rlhf.md
   - 具身智能:
-      - 总览: robotics/index.md
+      - robotics/index.md
       - Isaac Sim: robotics/isaac-sim.md
   - 随笔:
-      - 总览: notes/index.md
+      - notes/index.md
