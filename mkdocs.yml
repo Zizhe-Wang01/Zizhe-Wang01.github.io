@@ -1,5 +1,5 @@
-site_name: 王孜哲的个人笔记
-site_description: 记录编程、人工智能、机器人与日常思考
+site_name: zosia的个人网站
+site_description: zosia的个人网站
 site_url: https://zizhe-wang01.github.io/
 
 repo_name: Zizhe-Wang01/Zizhe-Wang01.github.io
@@ -61,11 +61,12 @@ markdown_extensions:
 
 nav:
   - 首页: index.md
-  - AI 与 Agent:
+  - 算法和Agent:
       - 总览: ai/index.md
-      - Agentic RL: ai/agenticrl.md
       - 强化学习: ai/reinforcement-learning.md
-  - 机器人:
+      - Agentic RL: ai/agenticrl.md
+      - RLHF: ai/rlhf.md
+  - 具身智能:
       - 总览: robotics/index.md
       - Isaac Sim: robotics/isaac-sim.md
   - 随笔:
