@@ -186,6 +186,31 @@
   font-size: 1rem;
 }
 
+.series-links {
+  display: flex;
+  max-width: 34rem;
+  margin-top: 0.7rem;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.series-links > a {
+  display: block;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 6px;
+  background: var(--md-default-bg-color);
+  color: var(--md-accent-fg-color);
+  font-weight: 650;
+  transition: border-color 140ms ease, background-color 140ms ease;
+}
+
+.series-links > a:hover {
+  border-color: var(--md-accent-fg-color);
+  background: var(--md-accent-fg-color--transparent);
+  text-decoration: none;
+}
+
 .md-typeset .grid.cards > ul > li,
 .md-typeset .grid.cards > ol > li,
 .md-typeset .grid.cards > .card {
