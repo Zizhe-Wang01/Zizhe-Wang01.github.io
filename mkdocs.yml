@@ -9,6 +9,7 @@ edit_uri: edit/main/docs/
 extra_javascript:
   - javascripts/mathjax.js
   - javascripts/section-index.js
+  - javascripts/pages-cms-edit.js
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 
 extra_css:

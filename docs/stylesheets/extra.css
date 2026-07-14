@@ -59,6 +59,12 @@
     pointer-events: auto;
   }
 
+  .md-sidebar--primary
+    .md-nav__list--focused
+    > .md-nav__item--section-index:not(.md-nav__item--active) {
+    display: none;
+  }
+
   .md-sidebar--primary .md-nav__item--nested > .md-nav__link .md-nav__icon {
     transform: rotate(90deg);
   }
@@ -68,6 +74,20 @@
 .md-nav__link--active,
 .md-nav__link:is(:focus, :hover) {
   color: var(--md-accent-fg-color);
+}
+
+.md-sidebar--primary .md-nav__link {
+  padding: 0.3rem 0.45rem;
+  border-radius: 4px;
+}
+
+.md-sidebar--primary .md-nav__link--active {
+  background: var(--md-accent-fg-color--transparent);
+  font-weight: 650;
+}
+
+.md-sidebar--primary .md-nav__link:is(:focus, :hover) {
+  background: var(--md-default-fg-color--lightest);
 }
 
 .md-typeset a {
@@ -119,4 +139,19 @@
 [data-md-color-scheme="slate"] .md-typeset .grid.cards > ol > li:hover,
 [data-md-color-scheme="slate"] .md-typeset .grid.cards > .card:hover {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+}
+
+.cms-sync-status {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 10;
+  max-width: min(20rem, calc(100vw - 2rem));
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 6px;
+  background: var(--md-default-bg-color);
+  box-shadow: var(--md-shadow-z2);
+  color: var(--md-default-fg-color);
+  font-size: 0.68rem;
 }
