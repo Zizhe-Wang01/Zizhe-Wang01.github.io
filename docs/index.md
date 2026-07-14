@@ -4,7 +4,7 @@
 
 <div class="grid cards" markdown>
 
--   :material-brain: **AI 与 Agent**
+-   :material-brain: **算法 与 Agent**
 
     ---
 
@@ -12,7 +12,7 @@
 
     [开始阅读](ai/index.md)
 
--   :material-robot-industrial: **具身智能与机器人**
+-   :material-robot-industrial: **具身智能**
 
     ---
 
