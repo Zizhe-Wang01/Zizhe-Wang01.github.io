@@ -1,0 +1,36 @@
+media:
+  - name: ai_images
+    label: AI 图片
+    input: docs/ai/images
+    output: /ai/images
+    categories:
+      - image
+    rename: safe
+
+content:
+  - name: home
+    label: 首页
+    type: file
+    path: docs/index.md
+    format: raw
+
+  - name: ai_notes
+    label: 算法和 Agent
+    type: collection
+    path: docs/ai
+    format: raw
+    subfolders: false
+
+  - name: robotics_notes
+    label: 具身智能
+    type: collection
+    path: docs/robotics
+    format: raw
+    subfolders: false
+
+  - name: general_notes
+    label: 随笔
+    type: collection
+    path: docs/notes
+    format: raw
+    subfolders: false
