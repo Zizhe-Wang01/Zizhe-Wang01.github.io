@@ -73,8 +73,9 @@ nav:
   - 首页: index.md
   - 算法和Agent:
       - ai/index.md
-      - 强化学习: ai/reinforcement-learning.md
-      - RLHF: ai/rlhf.md
+      - 强化学习系列:
+          - ai/reinforcement-learning.md
+          - RLHF: ai/rlhf.md
       - Agentic RL 系列:
           - ai/agenticrl.md
           - 总述: ai/agenticrloverview.md
