@@ -1,9 +1,9 @@
 :root {
-  --md-text-font-size: 0.82rem;
+  --md-text-font-size: 0.8rem;
 }
 
 .md-typeset {
-  line-height: 1.82;
+  line-height: 1.72;
 }
 
 .md-typeset h1,
@@ -14,11 +14,30 @@
 }
 
 .md-typeset h1 {
-  margin-bottom: 0.9rem;
+  margin-bottom: 0.7rem;
+  color: var(--md-default-fg-color);
+  font-size: 1.9rem;
 }
 
 .md-typeset h2 {
-  margin-top: 2.2rem;
+  margin-top: 1.8rem;
+  font-size: 1.35rem;
+}
+
+.md-main__inner {
+  margin-top: 1rem;
+}
+
+.md-content__inner {
+  padding-top: 1rem;
+}
+
+.md-nav {
+  font-size: 0.72rem;
+}
+
+.md-nav__title {
+  font-weight: 650;
 }
 
 .md-tabs__link--active,

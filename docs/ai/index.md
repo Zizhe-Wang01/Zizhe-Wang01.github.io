@@ -1,9 +1,9 @@
-# AI 与 Agent
+# 算法和 Agent
 
-这一部分记录大语言模型、Agent 系统、记忆机制和强化学习。
+强化学习、RLHF 和 Agentic RL 的学习笔记。
 
-## 当前主题
+## 主题
 
-- RL
-- Agentic RL
-- RLHF
+- [强化学习](reinforcement-learning.md)
+- [RLHF](rlhf.md)
+- [Agentic RL 系列](agenticrl.md)
