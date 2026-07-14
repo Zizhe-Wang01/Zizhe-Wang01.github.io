@@ -31,4 +31,4 @@
 
 ## 关于这个网站
 
-在Hermes Agent 时代构建自己的古法技能
+在Hermes Agent时代构建自己的古法技能

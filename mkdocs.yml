@@ -59,7 +59,7 @@ nav:
   - 首页: index.md
   - AI 与 Agent:
       - 总览: ai/index.md
-      - Agent: ai/agent.md
+      - Agentic RL: ai/agenticrl.md
       - 强化学习: ai/reinforcement-learning.md
   - 机器人:
       - 总览: robotics/index.md

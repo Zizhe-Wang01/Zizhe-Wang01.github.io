@@ -4,8 +4,5 @@
 
 ## 当前主题
 
-- Agent 工具调用
-- Request 与 Session 上下文
-- 长短期记忆
-- SFT、RL 与蒸馏
-- GSPO、DAPO 等训练方法
+- RL
+- Agentic RL
