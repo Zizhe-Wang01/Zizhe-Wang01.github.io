@@ -4,51 +4,31 @@
 
 <div class="grid cards" markdown>
 
--   :material-language-cpp: **C++ 与 Qt**
+-   :material-brain: **AI 与 Agent**
 
     ---
 
-    C++ 基础、Qt 界面开发与实际项目记录。
-
-    [开始阅读](cpp/index.md)
-
--   :material-unreal: **Unreal Engine**
-
-    ---
-
-    UObject、线程、Socket 与 Subsystem 等学习笔记。
-
-    [开始阅读](unreal/index.md)
-
--   :material-robot: **AI 与 Agent**
-
-    ---
-
-    大语言模型、Agent、记忆系统与强化学习。
+    大模型、Agent、强化学习等相关内容。
 
     [开始阅读](ai/index.md)
 
--   :material-robot-industrial: **机器人**
+-   :material-robot-industrial: **具身智能与机器人**
 
     ---
 
-    Isaac Sim、仿真、具身智能与机器人学习。
+    仿真、VLA、机器人与具身智能相关内容。
 
     [开始阅读](robotics/index.md)
 
+-   :material-note-edit: **随笔**
+
+    ---
+
+    阅读笔记、阶段总结与不适合归入技术分类的思考。
+
+    [开始阅读](notes/index.md)
 </div>
 
 ## 关于这个网站
 
-这个网站不是一份已经完成的教材，而是一套持续生长的个人知识库。
-
-我会尽量把每个问题写成：
-
-1. 我最初不明白什么；
-2. 核心概念是什么；
-3. 为什么要这样设计；
-4. 一个可以运行或验证的例子；
-5. 容易混淆的地方。
-
-!!! note "公开笔记提醒"
-    不要上传公司内部代码、密钥、服务器地址、未公开项目资料或个人隐私。
+在Hermes Agent 时代构建自己的古法技能

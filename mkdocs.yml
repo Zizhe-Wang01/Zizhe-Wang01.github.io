@@ -57,14 +57,6 @@ markdown_extensions:
 
 nav:
   - 首页: index.md
-  - C++ 与 Qt:
-      - 总览: cpp/index.md
-      - C++ 基础: cpp/cpp-basics.md
-      - Qt 学习: cpp/qt.md
-  - Unreal Engine:
-      - 总览: unreal/index.md
-      - 线程: unreal/thread.md
-      - Socket: unreal/socket.md
   - AI 与 Agent:
       - 总览: ai/index.md
       - Agent: ai/agent.md
