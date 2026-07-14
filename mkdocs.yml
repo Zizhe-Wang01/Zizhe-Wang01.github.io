@@ -75,7 +75,7 @@ nav:
       - 强化学习: ai/reinforcement-learning.md
       - Agentic RL: ai/agenticrl.md
           - Agentic RL 总述: ai/agenticrloverview.md
-          - "Agentic RL 01: Policy Gradient Loss": ai/agenticrl_01.md
+          - Agentic RL 01: Policy Gradient Loss": ai/agenticrl_01.md
       - RLHF: ai/rlhf.md
   - 具身智能:
       - 总览: robotics/index.md
