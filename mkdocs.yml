@@ -1,0 +1,76 @@
+site_name: 王孜哲的个人笔记
+site_description: 记录编程、人工智能、机器人与日常思考
+site_url: https://zizhe-wang01.github.io/
+
+repo_name: Zizhe-Wang01/Zizhe-Wang01.github.io
+repo_url: https://github.com/Zizhe-Wang01/Zizhe-Wang01.github.io
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  language: zh
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.action.edit
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: 切换到深色模式
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: 切换到浅色模式
+
+plugins:
+  - search:
+      lang:
+        - zh
+        - en
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - footnotes
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - pymdownx.tasklist:
+      custom_checkbox: true
+
+nav:
+  - 首页: index.md
+  - C++ 与 Qt:
+      - 总览: cpp/index.md
+      - C++ 基础: cpp/cpp-basics.md
+      - Qt 学习: cpp/qt.md
+  - Unreal Engine:
+      - 总览: unreal/index.md
+      - 线程: unreal/thread.md
+      - Socket: unreal/socket.md
+  - AI 与 Agent:
+      - 总览: ai/index.md
+      - Agent: ai/agent.md
+      - 强化学习: ai/reinforcement-learning.md
+  - 机器人:
+      - 总览: robotics/index.md
+      - Isaac Sim: robotics/isaac-sim.md
+  - 随笔:
+      - 总览: notes/index.md
