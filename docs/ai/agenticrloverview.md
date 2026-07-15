@@ -1,4 +1,4 @@
-# Agentic RL 00 总述
+# Agentic RL 00： 总述
 
 视频参考来源：[Agentic RL训练：从单一算法到系统协同](https://www.bilibili.com/video/BV198QEBKEPL/?spm_id_from=333.337.search-card.all.click&vd_source=4c651296d857eca6108e060df8a09e3f)
 
