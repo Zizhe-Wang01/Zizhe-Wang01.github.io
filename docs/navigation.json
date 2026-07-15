@@ -55,7 +55,7 @@
     {
       "type": "section",
       "id": "robotics",
-      "title": "具身智",
+      "title": "具身智能",
       "pathPrefix": "robotics",
       "childPrefix": "robotics",
       "index": "robotics/index.md",
