@@ -109,7 +109,7 @@ function enableSiteEditLinks() {
   renderContextualEditorActions(visible);
 }
 
-function renderPublishProgress(complete = false) {
+function renderSyncStatus(complete = false) {
   let status = document.querySelector(".cms-sync-status");
   if (!status) {
     status = document.createElement("div");
@@ -118,12 +118,9 @@ function renderPublishProgress(complete = false) {
     document.body.appendChild(status);
   }
   status.classList.toggle("cms-sync-status--complete", complete);
-  status.innerHTML = `
-    <div class="cms-sync-status__title">${complete ? "已发布" : "正在后台发布"}</div>
-    <div class="cms-sync-status__detail">${complete ? "线上内容已经更新" : "你可以继续浏览其他页面"}</div>
-    <div class="cms-sync-status__track" role="progressbar" aria-valuetext="${complete ? "发布完成" : "正在发布"}">
-      <span></span>
-    </div>`;
+  status.innerHTML = complete
+    ? "<span>已完成</span>"
+    : '<span class="cms-sync-status__spinner" aria-hidden="true"></span><span>同步中</span>';
   return status;
 }
 
@@ -147,7 +144,7 @@ function startBackgroundPublish(commit) {
   }));
   if (notesEditor.publishTimer) window.clearTimeout(notesEditor.publishTimer);
   notesEditor.publishTimer = null;
-  renderPublishProgress();
+  renderSyncStatus();
 }
 
 async function checkBackgroundPublish() {
@@ -161,15 +158,15 @@ async function checkBackgroundPublish() {
     return;
   }
 
-  renderPublishProgress();
+  renderSyncStatus();
   try {
     const response = await fetch(`/deployment.json?check=${Date.now()}`, { cache: "no-store" });
     const deployment = response.ok ? await response.json() : null;
     const latestPending = readPendingPublish();
     if (deployment?.sha === pending.commit && latestPending?.commit === pending.commit) {
       window.localStorage.removeItem(notesEditor.publishKey);
-      const status = renderPublishProgress(true);
-      window.setTimeout(() => status.remove(), 4000);
+      const status = renderSyncStatus(true);
+      window.setTimeout(() => status.remove(), 3000);
       notesEditor.publishChecking = false;
       return;
     }
@@ -183,7 +180,7 @@ async function checkBackgroundPublish() {
 
 function initializeBackgroundPublish() {
   if (!readPendingPublish()) return;
-  renderPublishProgress();
+  renderSyncStatus();
   if (!notesEditor.publishTimer && !notesEditor.publishChecking) checkBackgroundPublish();
 }
 
