@@ -1,7 +1,10 @@
 const notesEditor = {
   apiUrl: (window.ZOSIA_EDITOR_API || "").replace(/\/$/, ""),
   sessionKey: "zosia-notes-editor-session",
-  visibilityKey: "zosia-notes-editor-visible"
+  visibilityKey: "zosia-notes-editor-visible",
+  publishKey: "zosia-notes-editor-publish",
+  publishTimer: null,
+  publishChecking: false
 };
 
 function isSiteEditorVisible() {
@@ -106,7 +109,7 @@ function enableSiteEditLinks() {
   renderContextualEditorActions(visible);
 }
 
-function showPublishStatus(message) {
+function renderPublishProgress(complete = false) {
   let status = document.querySelector(".cms-sync-status");
   if (!status) {
     status = document.createElement("div");
@@ -114,8 +117,74 @@ function showPublishStatus(message) {
     status.setAttribute("role", "status");
     document.body.appendChild(status);
   }
-  status.textContent = message;
+  status.classList.toggle("cms-sync-status--complete", complete);
+  status.innerHTML = `
+    <div class="cms-sync-status__title">${complete ? "已发布" : "正在后台发布"}</div>
+    <div class="cms-sync-status__detail">${complete ? "线上内容已经更新" : "你可以继续浏览其他页面"}</div>
+    <div class="cms-sync-status__track" role="progressbar" aria-valuetext="${complete ? "发布完成" : "正在发布"}">
+      <span></span>
+    </div>`;
   return status;
+}
+
+function readPendingPublish() {
+  try {
+    const pending = JSON.parse(window.localStorage.getItem(notesEditor.publishKey));
+    if (!pending || !/^[0-9a-f]{40}$/.test(pending.commit) || !Number.isFinite(pending.startedAt)) {
+      return null;
+    }
+    return pending;
+  } catch (_) {
+    return null;
+  }
+}
+
+function startBackgroundPublish(commit) {
+  if (!/^[0-9a-f]{40}$/.test(commit || "")) return;
+  window.localStorage.setItem(notesEditor.publishKey, JSON.stringify({
+    commit,
+    startedAt: Date.now()
+  }));
+  if (notesEditor.publishTimer) window.clearTimeout(notesEditor.publishTimer);
+  notesEditor.publishTimer = null;
+  renderPublishProgress();
+}
+
+async function checkBackgroundPublish() {
+  if (notesEditor.publishChecking) return;
+  notesEditor.publishChecking = true;
+  notesEditor.publishTimer = null;
+  const pending = readPendingPublish();
+  if (!pending) {
+    document.querySelector(".cms-sync-status")?.remove();
+    notesEditor.publishChecking = false;
+    return;
+  }
+
+  renderPublishProgress();
+  try {
+    const response = await fetch(`/deployment.json?check=${Date.now()}`, { cache: "no-store" });
+    const deployment = response.ok ? await response.json() : null;
+    const latestPending = readPendingPublish();
+    if (deployment?.sha === pending.commit && latestPending?.commit === pending.commit) {
+      window.localStorage.removeItem(notesEditor.publishKey);
+      const status = renderPublishProgress(true);
+      window.setTimeout(() => status.remove(), 4000);
+      notesEditor.publishChecking = false;
+      return;
+    }
+  } catch (_) {
+    // The status stays non-blocking when GitHub Pages is temporarily unreachable.
+  }
+
+  notesEditor.publishChecking = false;
+  notesEditor.publishTimer = window.setTimeout(checkBackgroundPublish, 10000);
+}
+
+function initializeBackgroundPublish() {
+  if (!readPendingPublish()) return;
+  renderPublishProgress();
+  if (!notesEditor.publishTimer && !notesEditor.publishChecking) checkBackgroundPublish();
 }
 
 function submittedUrl(path) {
@@ -129,8 +198,6 @@ function showSubmissionNotice() {
   if (!url.searchParams.has("editor-submitted")) return;
   url.searchParams.delete("editor-submitted");
   history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
-  const status = showPublishStatus("修改已提交，网站正在后台发布；完成后刷新页面即可查看。");
-  window.setTimeout(() => status.remove(), 10000);
 }
 
 function readEditorSession() {
@@ -304,6 +371,7 @@ async function initializeCreatePage(returnPath) {
           destination.searchParams.set("return", created.url);
           destination.searchParams.set("back", returnPath);
           destination.searchParams.set("created", "article");
+          startBackgroundPublish(created.commit);
           window.location.assign(destination);
         } else if (mode === "directory") {
           status.textContent = "正在创建目录...";
@@ -321,16 +389,18 @@ async function initializeCreatePage(returnPath) {
           destination.searchParams.set("return", created.url);
           destination.searchParams.set("back", returnPath);
           destination.searchParams.set("created", "directory");
+          startBackgroundPublish(created.commit);
           window.location.assign(destination);
         } else {
           status.textContent = "正在保存目录名称...";
-          await editorRequest("/api/directory", {
+          const updated = await editorRequest("/api/directory", {
             method: "PUT",
             body: JSON.stringify({
               id: params.get("directory"),
               title: document.querySelector("#notes-directory-rename-title")?.value.trim()
             })
           });
+          startBackgroundPublish(updated.commit);
           window.location.assign(submittedUrl(returnPath));
         }
       } catch (error) {
@@ -404,7 +474,7 @@ async function initializeEditorPage() {
       button.disabled = true;
       if (status) status.textContent = "正在提交...";
       try {
-        await editorRequest("/api/file", {
+        const updated = await editorRequest("/api/file", {
           method: "PUT",
           body: JSON.stringify({
             path,
@@ -413,6 +483,7 @@ async function initializeEditorPage() {
             message: `更新 ${path.split("/").pop()}`
           })
         });
+        startBackgroundPublish(updated.commit);
         const destination = params.has("created")
           ? safeReturnPath(params.get("back"))
           : returnPath;
@@ -431,6 +502,7 @@ async function initializeEditorPage() {
 
 function initializeSiteEditor() {
   showSubmissionNotice();
+  initializeBackgroundPublish();
   enableSiteEditLinks();
   initializeEditorPage();
 }

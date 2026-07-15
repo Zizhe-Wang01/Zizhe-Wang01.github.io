@@ -35,6 +35,9 @@ jobs:
       - name: Build website
         run: mkdocs build --strict
 
+      - name: Record deployment version
+        run: printf '{"sha":"%s"}\n' "$GITHUB_SHA" > site/deployment.json
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 

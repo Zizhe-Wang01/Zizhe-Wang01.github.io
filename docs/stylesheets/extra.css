@@ -433,12 +433,54 @@ a.md-content__button[rel~="edit"],
   right: 1rem;
   bottom: 1rem;
   z-index: 10;
-  max-width: min(20rem, calc(100vw - 2rem));
-  padding: 0.55rem 0.75rem;
+  width: min(17rem, calc(100vw - 2rem));
+  padding: 0.7rem 0.8rem 0.75rem;
   border: 1px solid var(--md-default-fg-color--lightest);
-  border-radius: 6px;
+  border-radius: 8px;
   background: var(--md-default-bg-color);
   box-shadow: var(--md-shadow-z2);
   color: var(--md-default-fg-color);
-  font-size: 0.68rem;
+}
+
+.cms-sync-status__title {
+  font-size: 0.7rem;
+  font-weight: 650;
+}
+
+.cms-sync-status__detail {
+  margin-top: 0.12rem;
+  color: var(--md-default-fg-color--light);
+  font-size: 0.6rem;
+}
+
+.cms-sync-status__track {
+  position: relative;
+  height: 0.22rem;
+  margin-top: 0.55rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--md-default-fg-color--lightest);
+}
+
+.cms-sync-status__track > span {
+  position: absolute;
+  width: 42%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--md-accent-fg-color);
+  animation: cms-publish-progress 1.3s ease-in-out infinite;
+}
+
+.cms-sync-status--complete .cms-sync-status__track > span {
+  width: 100%;
+  animation: none;
+}
+
+@keyframes cms-publish-progress {
+  from {
+    transform: translateX(-110%);
+  }
+  to {
+    transform: translateX(350%);
+  }
 }
