@@ -3,10 +3,10 @@ hide:
   - toc
 ---
 
-# Agentic RL {.directory-title}
+# Agentic RL 系列 {.directory-title}
 
 Agentic RL 相关笔记目录。
 
-## 笔记 {.directory-heading}
+## 文章 {.directory-heading}
 
 <!-- auto-directory -->

@@ -7,6 +7,6 @@ hide:
 
 强化学习相关笔记目录。
 
-## 笔记 {.directory-heading}
+## 文章 {.directory-heading}
 
 <!-- auto-directory -->

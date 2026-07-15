@@ -75,11 +75,28 @@ def _mkdocs_item(item):
     return {item["title"]: children}
 
 
+def _validate_directory_titles(items, docs_dir):
+    for item in items:
+        if item.get("type") != "section":
+            continue
+        index_path = docs_dir / item["index"]
+        content = index_path.read_text(encoding="utf-8")
+        match = re.search(r"^#\s+(.+?)\s*(?:\{[^}]+\})?$", content, re.MULTILINE)
+        page_title = match.group(1).strip() if match else None
+        if page_title != item["title"]:
+            raise ValueError(
+                f"directory title mismatch for {item['index']}: "
+                f"navigation={item['title']!r}, page={page_title!r}"
+            )
+        _validate_directory_titles(item.get("items", []), docs_dir)
+
+
 def on_config(config):
     global _navigation, _docs_dir
     navigation_path = Path(config["config_file_path"]).parent / "docs" / "navigation.json"
     navigation = json.loads(navigation_path.read_text(encoding="utf-8"))
     _validate_navigation(navigation)
+    _validate_directory_titles(navigation["items"], navigation_path.parent)
     config["nav"] = [_mkdocs_item(item) for item in navigation["items"]]
     _navigation = navigation
     _docs_dir = navigation_path.parent
