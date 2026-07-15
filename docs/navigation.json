@@ -20,8 +20,14 @@
           "pathPrefix": "ai",
           "index": "ai/reinforcement-learning.md",
           "items": [
-            { "type": "page", "path": "ai/rl_01.md" },
-            { "type": "page", "path": "ai/rlhf.md" }
+            {
+              "type": "page",
+              "path": "ai/rl_01.md"
+            },
+            {
+              "type": "page",
+              "path": "ai/rlhf.md"
+            }
           ]
         },
         {
@@ -31,8 +37,14 @@
           "pathPrefix": "ai",
           "index": "ai/agenticrl.md",
           "items": [
-            { "type": "page", "path": "ai/agenticrloverview.md" },
-            { "type": "page", "path": "ai/agenticrl_01.md" }
+            {
+              "type": "page",
+              "path": "ai/agenticrloverview.md"
+            },
+            {
+              "type": "page",
+              "path": "ai/agenticrl_01.md"
+            }
           ]
         }
       ]
@@ -44,7 +56,10 @@
       "pathPrefix": "robotics",
       "index": "robotics/index.md",
       "items": [
-        { "type": "page", "path": "robotics/isaac-sim.md" }
+        {
+          "type": "page",
+          "path": "robotics/isaac-sim.md"
+        }
       ]
     },
     {
