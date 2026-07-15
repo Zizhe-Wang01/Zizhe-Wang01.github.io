@@ -1,11 +1,7 @@
 const notesEditor = {
   apiUrl: (window.ZOSIA_EDITOR_API || "").replace(/\/$/, ""),
   sessionKey: "zosia-notes-editor-session",
-  visibilityKey: "zosia-notes-editor-visible",
-  pollTimer: null,
-  destinationTimer: null,
-  baseline: null,
-  pageKey: null
+  visibilityKey: "zosia-notes-editor-visible"
 };
 
 function isSiteEditorVisible() {
@@ -119,79 +115,22 @@ function showPublishStatus(message) {
     document.body.appendChild(status);
   }
   status.textContent = message;
+  return status;
 }
 
-async function fetchPublishedContent(path = window.location.href) {
-  const url = new URL(path, window.location.origin);
-  url.searchParams.delete("editor-published");
-  url.searchParams.set("publish-check", Date.now().toString());
-  const response = await fetch(url, { cache: "no-store" });
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  const html = await response.text();
-  const page = new DOMParser().parseFromString(html, "text/html");
-  return page.querySelector(".md-content__inner")?.innerHTML.trim() ?? "";
-}
-
-async function fetchPublishedArticle() {
-  return fetchPublishedContent(window.location.href);
-}
-
-async function pollForPublish(attempt = 0) {
-  try {
-    const current = await fetchPublishedArticle();
-    if (notesEditor.baseline && current !== notesEditor.baseline) {
-      showPublishStatus("新内容已发布，正在刷新...");
-      const url = new URL(window.location.href);
-      url.searchParams.delete("editor-published");
-      window.setTimeout(() => window.location.replace(url), 300);
-      return;
-    }
-  } catch (_) {
-    // GitHub Pages can briefly be unavailable while switching deployments.
-  }
-
-  if (attempt >= 150) {
-    showPublishStatus("发布仍在进行，可稍后手动刷新");
-    return;
-  }
-
-  showPublishStatus("修改已提交，正在等待网站发布...");
-  notesEditor.pollTimer = window.setTimeout(() => pollForPublish(attempt + 1), 2000);
-}
-
-async function beginPublishPolling() {
-  const params = new URLSearchParams(window.location.search);
-  if (!params.has("editor-published") || notesEditor.pollTimer) return;
-
-  try {
-    notesEditor.baseline = await fetchPublishedArticle();
-  } catch (_) {
-    notesEditor.baseline = document.querySelector(".md-content__inner")?.innerHTML.trim() ?? "";
-  }
-  pollForPublish();
-}
-
-async function waitForPublishedDestination(path, status, attempt = 0) {
+function submittedUrl(path) {
   const destination = new URL(path, window.location.origin);
-  try {
-    const published = await fetchPublishedContent(destination);
-    if (notesEditor.baseline === null || published !== notesEditor.baseline) {
-      window.location.assign(destination);
-      return;
-    }
-  } catch (_) {
-    // A new page can return 404 until the first GitHub Pages build completes.
-  }
+  destination.searchParams.set("editor-submitted", "1");
+  return destination.toString();
+}
 
-  if (attempt >= 150) {
-    status.textContent = "提交已完成，但网站仍在发布；可以稍后返回文章页面。";
-    return;
-  }
-  status.textContent = "提交成功，正在等待文章页面发布...";
-  notesEditor.destinationTimer = window.setTimeout(
-    () => waitForPublishedDestination(path, status, attempt + 1),
-    2000
-  );
+function showSubmissionNotice() {
+  const url = new URL(window.location.href);
+  if (!url.searchParams.has("editor-submitted")) return;
+  url.searchParams.delete("editor-submitted");
+  history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+  const status = showPublishStatus("修改已提交，网站正在后台发布；完成后刷新页面即可查看。");
+  window.setTimeout(() => status.remove(), 10000);
 }
 
 function readEditorSession() {
@@ -363,6 +302,7 @@ async function initializeCreatePage(returnPath) {
           const destination = new URL(`${window.location.origin}/editor/`);
           destination.searchParams.set("path", created.path);
           destination.searchParams.set("return", created.url);
+          destination.searchParams.set("back", returnPath);
           destination.searchParams.set("created", "article");
           window.location.assign(destination);
         } else if (mode === "directory") {
@@ -379,11 +319,11 @@ async function initializeCreatePage(returnPath) {
           const destination = new URL(`${window.location.origin}/editor/`);
           destination.searchParams.set("path", created.path);
           destination.searchParams.set("return", created.url);
+          destination.searchParams.set("back", returnPath);
           destination.searchParams.set("created", "directory");
           window.location.assign(destination);
         } else {
           status.textContent = "正在保存目录名称...";
-          notesEditor.baseline = await fetchPublishedContent(returnPath).catch(() => null);
           await editorRequest("/api/directory", {
             method: "PUT",
             body: JSON.stringify({
@@ -391,7 +331,7 @@ async function initializeCreatePage(returnPath) {
               title: document.querySelector("#notes-directory-rename-title")?.value.trim()
             })
           });
-          await waitForPublishedDestination(returnPath, status);
+          window.location.assign(submittedUrl(returnPath));
         }
       } catch (error) {
         if (error.message === "LOGIN_REQUIRED") showEditorLogin();
@@ -464,7 +404,6 @@ async function initializeEditorPage() {
       button.disabled = true;
       if (status) status.textContent = "正在提交...";
       try {
-        notesEditor.baseline = await fetchPublishedContent(returnPath).catch(() => null);
         await editorRequest("/api/file", {
           method: "PUT",
           body: JSON.stringify({
@@ -474,7 +413,10 @@ async function initializeEditorPage() {
             message: `更新 ${path.split("/").pop()}`
           })
         });
-        await waitForPublishedDestination(returnPath, status);
+        const destination = params.has("created")
+          ? safeReturnPath(params.get("back"))
+          : returnPath;
+        window.location.assign(submittedUrl(destination));
       } catch (error) {
         if (error.message === "LOGIN_REQUIRED") showEditorLogin();
         else if (status) status.textContent = `保存失败：${error.message}`;
@@ -488,18 +430,9 @@ async function initializeEditorPage() {
 }
 
 function initializeSiteEditor() {
-  const pageKey = `${window.location.pathname}${window.location.search}`;
-  if (notesEditor.pageKey && notesEditor.pageKey !== pageKey) {
-    if (notesEditor.pollTimer) window.clearTimeout(notesEditor.pollTimer);
-    if (notesEditor.destinationTimer) window.clearTimeout(notesEditor.destinationTimer);
-    notesEditor.pollTimer = null;
-    notesEditor.destinationTimer = null;
-    notesEditor.baseline = null;
-  }
-  notesEditor.pageKey = pageKey;
+  showSubmissionNotice();
   enableSiteEditLinks();
   initializeEditorPage();
-  beginPublishPolling();
 }
 
 if (typeof document$ !== "undefined") {
