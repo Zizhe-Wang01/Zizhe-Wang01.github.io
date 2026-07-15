@@ -270,6 +270,117 @@
   margin-top: 0.75rem;
 }
 
+.notes-editor-create {
+  max-width: 34rem;
+  margin-top: 0.75rem;
+}
+
+.notes-editor-create__heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.notes-editor-create__heading h2 {
+  margin: 0;
+}
+
+.notes-editor-create__heading p {
+  margin: 0.25rem 0 1rem;
+  color: var(--md-default-fg-color--light);
+}
+
+.notes-editor-create label {
+  display: block;
+  margin: 0.8rem 0 0.25rem;
+  font-size: 0.72rem;
+  font-weight: 650;
+}
+
+.notes-editor-create select,
+.notes-editor-create input {
+  display: block;
+  width: 100%;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 6px;
+  outline: none;
+  background: var(--md-default-bg-color);
+  color: var(--md-default-fg-color);
+  font: inherit;
+}
+
+.notes-editor-create select:focus,
+.notes-editor-create input:focus {
+  border-color: var(--md-accent-fg-color);
+  box-shadow: 0 0 0 2px var(--md-accent-fg-color--transparent);
+}
+
+.notes-editor-create__hint {
+  margin: 0.3rem 0 1rem;
+  color: var(--md-default-fg-color--light);
+  font-size: 0.65rem;
+}
+
+.notes-directory-manager {
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--md-default-fg-color--lightest);
+}
+
+.notes-directory-manager > h2 {
+  margin: 0;
+}
+
+.notes-directory-manager > p {
+  margin: 0.3rem 0 0.8rem;
+  color: var(--md-default-fg-color--light);
+}
+
+.notes-directory-manager__new {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  align-items: end;
+  gap: 0.5rem;
+}
+
+.notes-directory-manager__new label:first-child,
+.notes-directory-manager__new select:first-of-type {
+  grid-column: 1 / -1;
+}
+
+.notes-directory-manager__new label {
+  margin-bottom: -0.25rem;
+}
+
+.notes-directory-list {
+  display: flex;
+  margin-top: 1rem;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.notes-directory-list__item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0.5rem;
+  padding-left: calc(var(--directory-depth, 0) * 0.8rem);
+}
+
+.notes-directory-list__item input {
+  margin: 0;
+}
+
+@media screen and (max-width: 44.984375em) {
+  .notes-directory-manager__new {
+    display: flex;
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
 .notes-editor__toolbar {
   display: flex;
   align-items: center;

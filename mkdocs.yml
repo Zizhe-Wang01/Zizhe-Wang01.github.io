@@ -56,6 +56,9 @@ plugins:
         - zh
         - en
 
+hooks:
+  - hooks/navigation.py
+
 markdown_extensions:
   - admonition
   - attr_list
@@ -77,25 +80,6 @@ markdown_extensions:
   - pymdownx.tasklist:
       custom_checkbox: true
 
-nav:
-  - 首页: index.md
-  - 算法和 Agent:
-      - ai/index.md
-      - 强化学习系列:
-          - ai/reinforcement-learning.md
-          - "RL 01: Basic Concepts": ai/rl_01.md
-          - "RL 02: RLHF": ai/rlhf.md
-      - Agentic RL 系列:
-          - ai/agenticrl.md
-          - "Agentic RL 总述": ai/agenticrloverview.md
-          - "Agentic RL 01: Policy Gradient Loss": ai/agenticrl_01.md
-
-
-  - 具身智能:
-      - robotics/index.md
-      - Isaac Sim: robotics/isaac-sim.md
-  - 随笔:
-      - notes/index.md
-
 exclude_docs: |
   editor/README.md
+  navigation.json

@@ -2,6 +2,4 @@
 
 ## 当前主题
 
-- 仿真
-- VLA
-
+<!-- auto-directory -->

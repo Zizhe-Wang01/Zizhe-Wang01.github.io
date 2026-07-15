@@ -9,7 +9,4 @@ hide:
 
 ## 系列 {.directory-heading}
 
-<div class="series-links">
-  <a href="reinforcement-learning/">强化学习系列</a>
-  <a href="agenticrl/">Agentic RL 系列</a>
-</div>
+<!-- auto-directory -->

@@ -9,5 +9,4 @@ hide:
 
 ## 笔记 {.directory-heading}
 
-- [RL 01: Basic Concepts](rl_01.md)
-- [RL 02: RLHF](rlhf.md)
+<!-- auto-directory -->

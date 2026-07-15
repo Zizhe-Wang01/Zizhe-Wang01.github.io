@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "items": [
+    {
+      "type": "page",
+      "title": "首页",
+      "path": "index.md"
+    },
+    {
+      "type": "section",
+      "id": "ai",
+      "title": "算法和 Agent",
+      "pathPrefix": "ai",
+      "index": "ai/index.md",
+      "items": [
+        {
+          "type": "section",
+          "id": "rl",
+          "title": "强化学习系列",
+          "pathPrefix": "ai",
+          "index": "ai/reinforcement-learning.md",
+          "items": [
+            { "type": "page", "path": "ai/rl_01.md" },
+            { "type": "page", "path": "ai/rlhf.md" }
+          ]
+        },
+        {
+          "type": "section",
+          "id": "agentic",
+          "title": "Agentic RL 系列",
+          "pathPrefix": "ai",
+          "index": "ai/agenticrl.md",
+          "items": [
+            { "type": "page", "path": "ai/agenticrloverview.md" },
+            { "type": "page", "path": "ai/agenticrl_01.md" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "section",
+      "id": "robotics",
+      "title": "具身智能",
+      "pathPrefix": "robotics",
+      "index": "robotics/index.md",
+      "items": [
+        { "type": "page", "path": "robotics/isaac-sim.md" }
+      ]
+    },
+    {
+      "type": "section",
+      "id": "notes",
+      "title": "随笔",
+      "pathPrefix": "notes",
+      "index": "notes/index.md",
+      "items": []
+    }
+  ]
+}
