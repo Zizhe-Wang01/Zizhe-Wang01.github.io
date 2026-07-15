@@ -3,7 +3,9 @@ const notesEditor = {
   sessionKey: "zosia-notes-editor-session",
   visibilityKey: "zosia-notes-editor-visible",
   pollTimer: null,
-  baseline: null
+  destinationTimer: null,
+  baseline: null,
+  pageKey: null
 };
 
 function isSiteEditorVisible() {
@@ -39,11 +41,54 @@ function editorUrl(path) {
   return url.toString();
 }
 
-function newArticleUrl() {
+function managementUrl(mode, parameters = {}) {
   const url = new URL(`${window.location.origin}/editor/`);
-  url.searchParams.set("new", "1");
+  url.searchParams.set("mode", mode);
+  Object.entries(parameters).forEach(([key, value]) => {
+    if (value) url.searchParams.set(key, value);
+  });
   url.searchParams.set("return", `${window.location.pathname}${window.location.search}`);
   return url.toString();
+}
+
+function renderContextualEditorActions(visible) {
+  document.querySelector(".content-management-actions")?.remove();
+  if (!visible || window.location.pathname.startsWith("/editor/")) return;
+
+  const context = document.querySelector(".editor-page-context");
+  const editLink = document.querySelector('a[rel~="edit"]');
+  if (!context || !editLink) return;
+
+  const pageType = context.dataset.pageType;
+  const directoryId = context.dataset.directoryId;
+  const toolbar = document.createElement("div");
+  toolbar.className = "content-management-actions";
+  toolbar.setAttribute("aria-label", "内容管理");
+
+  const addAction = (label, href, primary = false) => {
+    const action = document.createElement("a");
+    action.className = `md-button${primary ? " md-button--primary" : ""}`;
+    action.href = href;
+    action.textContent = label;
+    toolbar.append(action);
+  };
+
+  if (pageType === "article") {
+    addAction("编辑本文", editLink.href, true);
+    addAction("在此目录新建文章", managementUrl("article", { directory: directoryId }));
+  } else if (pageType === "directory") {
+    addAction("新建文章", managementUrl("article", { directory: directoryId }), true);
+    addAction("新建子目录", managementUrl("directory", { parent: directoryId }));
+    addAction("重命名目录", managementUrl("rename", { directory: directoryId }));
+    addAction("编辑目录介绍", editLink.href);
+  } else if (pageType === "home") {
+    addAction("新建顶级目录", managementUrl("directory"), true);
+    addAction("编辑首页", editLink.href);
+  }
+
+  if (!toolbar.children.length) return;
+  editLink.hidden = true;
+  context.insertAdjacentElement("afterend", toolbar);
 }
 
 function enableSiteEditLinks() {
@@ -62,17 +107,7 @@ function enableSiteEditLinks() {
     link.title = "编辑这篇文章";
     link.dataset.siteEditorEnabled = "true";
   });
-
-  if (!visible || window.location.pathname.startsWith("/editor/")) return;
-  const editLink = document.querySelector('a[rel~="edit"]');
-  if (!editLink || document.querySelector(".notes-create-link")) return;
-  const createLink = document.createElement("a");
-  createLink.className = "md-content__button md-icon notes-create-link";
-  createLink.href = newArticleUrl();
-  createLink.title = "新建文章或管理目录";
-  createLink.setAttribute("aria-label", createLink.title);
-  createLink.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"/></svg>';
-  editLink.insertAdjacentElement("afterend", createLink);
+  renderContextualEditorActions(visible);
 }
 
 function showPublishStatus(message) {
@@ -86,8 +121,8 @@ function showPublishStatus(message) {
   status.textContent = message;
 }
 
-async function fetchPublishedArticle() {
-  const url = new URL(window.location.href);
+async function fetchPublishedContent(path = window.location.href) {
+  const url = new URL(path, window.location.origin);
   url.searchParams.delete("editor-published");
   url.searchParams.set("publish-check", Date.now().toString());
   const response = await fetch(url, { cache: "no-store" });
@@ -95,6 +130,10 @@ async function fetchPublishedArticle() {
   const html = await response.text();
   const page = new DOMParser().parseFromString(html, "text/html");
   return page.querySelector(".md-content__inner")?.innerHTML.trim() ?? "";
+}
+
+async function fetchPublishedArticle() {
+  return fetchPublishedContent(window.location.href);
 }
 
 async function pollForPublish(attempt = 0) {
@@ -130,6 +169,29 @@ async function beginPublishPolling() {
     notesEditor.baseline = document.querySelector(".md-content__inner")?.innerHTML.trim() ?? "";
   }
   pollForPublish();
+}
+
+async function waitForPublishedDestination(path, status, attempt = 0) {
+  const destination = new URL(path, window.location.origin);
+  try {
+    const published = await fetchPublishedContent(destination);
+    if (notesEditor.baseline === null || published !== notesEditor.baseline) {
+      window.location.assign(destination);
+      return;
+    }
+  } catch (_) {
+    // A new page can return 404 until the first GitHub Pages build completes.
+  }
+
+  if (attempt >= 150) {
+    status.textContent = "提交已完成，但网站仍在发布；可以稍后返回文章页面。";
+    return;
+  }
+  status.textContent = "提交成功，正在等待文章页面发布...";
+  notesEditor.destinationTimer = window.setTimeout(
+    () => waitForPublishedDestination(path, status, attempt + 1),
+    2000
+  );
 }
 
 function readEditorSession() {
@@ -210,44 +272,6 @@ function fillDirectorySelect(select, sections, includeRoot = false) {
   });
 }
 
-function renderDirectoryList(sections) {
-  const list = document.querySelector("#notes-directory-list");
-  if (!list) return;
-  list.replaceChildren();
-  sections.forEach((section) => {
-    const row = document.createElement("div");
-    row.className = "notes-directory-list__item";
-    row.style.setProperty("--directory-depth", section.depth);
-    const input = document.createElement("input");
-    input.value = section.title;
-    input.maxLength = 120;
-    input.setAttribute("aria-label", `${section.title}的新名称`);
-    const button = document.createElement("button");
-    button.className = "md-button";
-    button.type = "button";
-    button.textContent = "重命名";
-    button.addEventListener("click", async () => {
-      const status = document.querySelector("#notes-directory-status");
-      button.disabled = true;
-      if (status) status.textContent = "正在保存目录名称...";
-      try {
-        await editorRequest("/api/directory", {
-          method: "PUT",
-          body: JSON.stringify({ id: section.id, title: input.value.trim() })
-        });
-        if (status) status.textContent = "目录名称已更新，网站正在自动部署。";
-      } catch (error) {
-        if (error.message === "LOGIN_REQUIRED") showEditorLogin();
-        else if (status) status.textContent = `重命名失败：${error.message}`;
-      } finally {
-        button.disabled = false;
-      }
-    });
-    row.append(input, button);
-    list.append(row);
-  });
-}
-
 async function initializeCreatePage(returnPath) {
   const root = document.querySelector("#notes-editor-create");
   if (!root || root.dataset.initialized === "true") return;
@@ -255,49 +279,61 @@ async function initializeCreatePage(returnPath) {
 
   try {
     const navigation = await editorRequest("/api/navigation");
-    let sections = navigationSections(navigation.items);
+    const sections = navigationSections(navigation.items);
+    const params = new URLSearchParams(window.location.search);
+    const mode = params.get("mode") || (params.get("new") === "1" ? "article" : "");
+    const heading = document.querySelector("#notes-editor-create-heading");
+    const description = document.querySelector("#notes-editor-create-description");
+    const submit = document.querySelector("#notes-editor-create-submit");
+    const status = document.querySelector("#notes-editor-create-status");
+    const articleFields = document.querySelector("#notes-editor-article-fields");
+    const directoryFields = document.querySelector("#notes-editor-directory-fields");
+    const renameFields = document.querySelector("#notes-editor-rename-fields");
     const articleDirectory = document.querySelector("#notes-editor-section");
     const parentDirectory = document.querySelector("#notes-directory-parent");
     fillDirectorySelect(articleDirectory, sections);
     fillDirectorySelect(parentDirectory, sections, true);
-    renderDirectoryList(sections);
+
+    if (mode === "article") {
+      heading.textContent = "新建文章";
+      description.textContent = "文章会自动加入当前目录，创建后直接进入编辑。";
+      submit.textContent = "创建并开始编辑";
+      articleFields.removeAttribute("hidden");
+      const selectedDirectory = params.get("directory");
+      if (selectedDirectory && sections.some((section) => section.id === selectedDirectory)) {
+        articleDirectory.value = selectedDirectory;
+        articleDirectory.disabled = true;
+      }
+    } else if (mode === "directory") {
+      heading.textContent = params.get("parent") ? "新建子目录" : "新建顶级目录";
+      description.textContent = "目录创建后会出现在左侧导航，并拥有自己的目录首页。";
+      submit.textContent = "创建目录";
+      directoryFields.removeAttribute("hidden");
+      const selectedParent = params.get("parent");
+      if (selectedParent && sections.some((section) => section.id === selectedParent)) {
+        parentDirectory.value = selectedParent;
+      }
+      parentDirectory.disabled = true;
+    } else if (mode === "rename") {
+      const directory = sections.find((section) => section.id === params.get("directory"));
+      if (!directory) throw new Error("要重命名的目录不存在");
+      heading.textContent = "重命名目录";
+      description.textContent = "只修改显示名称，现有文章网址保持不变。";
+      submit.textContent = "保存新名称";
+      renameFields.removeAttribute("hidden");
+      document.querySelector("#notes-directory-rename-title").value = directory.title;
+    } else {
+      throw new Error("没有指定内容管理操作");
+    }
+
     root.removeAttribute("hidden");
 
-    const title = document.querySelector("#notes-editor-new-title");
-    const slug = document.querySelector("#notes-editor-new-slug");
-    let slugWasEdited = false;
-    slug?.addEventListener("input", () => { slugWasEdited = true; });
-    title?.addEventListener("input", () => {
-      if (!slugWasEdited && slug) slug.value = slugify(title.value);
-    });
-
-    document.querySelector("#notes-editor-create-submit")?.addEventListener("click", async (event) => {
-      const button = event.currentTarget;
-      const status = document.querySelector("#notes-editor-create-status");
-      const fallbackSlug = `article-${new Date().toISOString().slice(0, 16).replace(/[-:T]/g, "")}`;
-      const articleSlug = slugify(slug?.value || "") || fallbackSlug;
-      if (slug) slug.value = articleSlug;
-      button.disabled = true;
-      if (status) status.textContent = "正在创建文章和目录条目...";
-      try {
-        const article = await editorRequest("/api/article", {
-          method: "POST",
-          body: JSON.stringify({
-            directoryId: articleDirectory?.value,
-            title: title?.value.trim(),
-            slug: articleSlug
-          })
-        });
-        const destination = new URL(`${window.location.origin}/editor/`);
-        destination.searchParams.set("path", article.path);
-        destination.searchParams.set("return", article.url);
-        destination.searchParams.set("created", "1");
-        window.location.assign(destination);
-      } catch (error) {
-        if (error.message === "LOGIN_REQUIRED") showEditorLogin();
-        else if (status) status.textContent = `创建失败：${error.message}`;
-        button.disabled = false;
-      }
+    const articleTitle = document.querySelector("#notes-editor-new-title");
+    const articleSlug = document.querySelector("#notes-editor-new-slug");
+    let articleSlugWasEdited = false;
+    articleSlug?.addEventListener("input", () => { articleSlugWasEdited = true; });
+    articleTitle?.addEventListener("input", () => {
+      if (!articleSlugWasEdited && articleSlug) articleSlug.value = slugify(articleTitle.value);
     });
 
     const directoryTitle = document.querySelector("#notes-directory-title");
@@ -307,34 +343,60 @@ async function initializeCreatePage(returnPath) {
     directoryTitle?.addEventListener("input", () => {
       if (!directorySlugWasEdited && directorySlug) directorySlug.value = slugify(directoryTitle.value);
     });
-    document.querySelector("#notes-directory-create")?.addEventListener("click", async (event) => {
-      const button = event.currentTarget;
-      const status = document.querySelector("#notes-directory-status");
-      button.disabled = true;
-      if (status) status.textContent = "正在创建目录...";
+
+    submit.addEventListener("click", async () => {
+      submit.disabled = true;
       try {
-        const created = await editorRequest("/api/directory", {
-          method: "POST",
-          body: JSON.stringify({
-            parentId: parentDirectory?.value || null,
-            title: directoryTitle?.value.trim(),
-            slug: slugify(directorySlug?.value || "")
-          })
-        });
-        sections.push({ ...created.directory, depth: created.directory.pathPrefix.split("/").length - 1 });
-        fillDirectorySelect(articleDirectory, sections);
-        fillDirectorySelect(parentDirectory, sections, true);
-        renderDirectoryList(sections);
-        if (articleDirectory) articleDirectory.value = created.directory.id;
-        if (directoryTitle) directoryTitle.value = "";
-        if (directorySlug) directorySlug.value = "";
-        directorySlugWasEdited = false;
-        if (status) status.textContent = "目录已创建并选中，网站正在自动部署。";
+        if (mode === "article") {
+          const fallbackSlug = `article-${new Date().toISOString().slice(0, 16).replace(/[-:T]/g, "")}`;
+          const slug = slugify(articleSlug?.value || "") || fallbackSlug;
+          if (articleSlug) articleSlug.value = slug;
+          status.textContent = "正在创建文章...";
+          const created = await editorRequest("/api/article", {
+            method: "POST",
+            body: JSON.stringify({
+              directoryId: articleDirectory?.value,
+              title: articleTitle?.value.trim(),
+              slug
+            })
+          });
+          const destination = new URL(`${window.location.origin}/editor/`);
+          destination.searchParams.set("path", created.path);
+          destination.searchParams.set("return", created.url);
+          destination.searchParams.set("created", "article");
+          window.location.assign(destination);
+        } else if (mode === "directory") {
+          status.textContent = "正在创建目录...";
+          const fallbackSlug = `directory-${new Date().toISOString().slice(0, 16).replace(/[-:T]/g, "")}`;
+          const created = await editorRequest("/api/directory", {
+            method: "POST",
+            body: JSON.stringify({
+              parentId: parentDirectory?.value || null,
+              title: directoryTitle?.value.trim(),
+              slug: slugify(directorySlug?.value || "") || fallbackSlug
+            })
+          });
+          const destination = new URL(`${window.location.origin}/editor/`);
+          destination.searchParams.set("path", created.path);
+          destination.searchParams.set("return", created.url);
+          destination.searchParams.set("created", "directory");
+          window.location.assign(destination);
+        } else {
+          status.textContent = "正在保存目录名称...";
+          notesEditor.baseline = await fetchPublishedContent(returnPath).catch(() => null);
+          await editorRequest("/api/directory", {
+            method: "PUT",
+            body: JSON.stringify({
+              id: params.get("directory"),
+              title: document.querySelector("#notes-directory-rename-title")?.value.trim()
+            })
+          });
+          await waitForPublishedDestination(returnPath, status);
+        }
       } catch (error) {
         if (error.message === "LOGIN_REQUIRED") showEditorLogin();
-        else if (status) status.textContent = `创建目录失败：${error.message}`;
-      } finally {
-        button.disabled = false;
+        else status.textContent = `操作失败：${error.message}`;
+        submit.disabled = false;
       }
     });
   } catch (error) {
@@ -347,6 +409,8 @@ async function initializeCreatePage(returnPath) {
 async function initializeEditorPage() {
   const root = document.querySelector("#notes-editor");
   if (!root) return;
+  if (root.dataset.initialized === "true") return;
+  root.dataset.initialized = "true";
 
   document.querySelector('a[rel~="edit"]')?.setAttribute("hidden", "");
   if (!notesEditor.apiUrl) {
@@ -369,7 +433,7 @@ async function initializeEditorPage() {
     window.location.assign(returnPath);
   });
 
-  if (params.get("new") === "1") {
+  if (params.has("mode") || params.get("new") === "1") {
     await initializeCreatePage(returnPath);
     return;
   }
@@ -386,9 +450,12 @@ async function initializeEditorPage() {
     if (content) content.value = file.content;
     root.dataset.sha = file.sha;
     root.removeAttribute("hidden");
-    if (params.has("created")) {
+    if (params.get("created") === "article") {
       const status = document.querySelector("#notes-editor-status");
       if (status) status.textContent = "文章已创建并加入目录，可以继续写作。";
+    } else if (params.get("created") === "directory") {
+      const status = document.querySelector("#notes-editor-status");
+      if (status) status.textContent = "目录已创建，可以补充目录介绍。";
     }
 
     document.querySelector("#notes-editor-save")?.addEventListener("click", async (event) => {
@@ -397,6 +464,7 @@ async function initializeEditorPage() {
       button.disabled = true;
       if (status) status.textContent = "正在提交...";
       try {
+        notesEditor.baseline = await fetchPublishedContent(returnPath).catch(() => null);
         await editorRequest("/api/file", {
           method: "PUT",
           body: JSON.stringify({
@@ -406,11 +474,10 @@ async function initializeEditorPage() {
             message: `更新 ${path.split("/").pop()}`
           })
         });
-        const destination = new URL(returnPath, window.location.origin);
-        destination.searchParams.set("editor-published", Date.now().toString());
-        window.location.assign(destination);
+        await waitForPublishedDestination(returnPath, status);
       } catch (error) {
-        if (status) status.textContent = `保存失败：${error.message}`;
+        if (error.message === "LOGIN_REQUIRED") showEditorLogin();
+        else if (status) status.textContent = `保存失败：${error.message}`;
         button.disabled = false;
       }
     });
@@ -421,6 +488,15 @@ async function initializeEditorPage() {
 }
 
 function initializeSiteEditor() {
+  const pageKey = `${window.location.pathname}${window.location.search}`;
+  if (notesEditor.pageKey && notesEditor.pageKey !== pageKey) {
+    if (notesEditor.pollTimer) window.clearTimeout(notesEditor.pollTimer);
+    if (notesEditor.destinationTimer) window.clearTimeout(notesEditor.destinationTimer);
+    notesEditor.pollTimer = null;
+    notesEditor.destinationTimer = null;
+    notesEditor.baseline = null;
+  }
+  notesEditor.pageKey = pageKey;
   enableSiteEditLinks();
   initializeEditorPage();
   beginPublishPolling();

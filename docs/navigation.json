@@ -11,6 +11,7 @@
       "id": "ai",
       "title": "算法和 Agent",
       "pathPrefix": "ai",
+      "childPrefix": "ai",
       "index": "ai/index.md",
       "items": [
         {
@@ -18,6 +19,7 @@
           "id": "rl",
           "title": "强化学习系列",
           "pathPrefix": "ai",
+          "childPrefix": "ai/reinforcement-learning",
           "index": "ai/reinforcement-learning.md",
           "items": [
             {
@@ -35,6 +37,7 @@
           "id": "agentic",
           "title": "Agentic RL 系列",
           "pathPrefix": "ai",
+          "childPrefix": "ai/agenticrl",
           "index": "ai/agenticrl.md",
           "items": [
             {
@@ -54,6 +57,7 @@
       "id": "robotics",
       "title": "具身智能",
       "pathPrefix": "robotics",
+      "childPrefix": "robotics",
       "index": "robotics/index.md",
       "items": [
         {
@@ -67,6 +71,7 @@
       "id": "notes",
       "title": "随笔",
       "pathPrefix": "notes",
+      "childPrefix": "notes",
       "index": "notes/index.md",
       "items": []
     }

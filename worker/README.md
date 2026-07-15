@@ -1,9 +1,10 @@
 # Zosia's Notes editor Worker
 
-This Worker provides GitHub OAuth and restricts writes to Markdown files under
-`docs/ai`, `docs/robotics`, and `docs/notes` in this repository. It can also
-create a Markdown article and add it to an approved `mkdocs.yml` navigation
-marker in one Git commit.
+This Worker provides GitHub OAuth and restricts writes to Markdown files in
+this repository's `docs` tree (excluding the editor itself). It can create and
+edit articles, create nested directories, and rename directory titles. The
+navigation source of truth is `docs/navigation.json`; multi-file changes are
+committed atomically and reject stale revisions instead of overwriting them.
 
 ## One-time setup
 
@@ -28,3 +29,8 @@ Never commit OAuth secrets to this repository.
 
 The browser stores the encrypted editor session locally for 30 days. GitHub is
 only opened again when that session expires or is rejected.
+
+The public site does not render management controls by default. The owner can
+enable contextual controls on a device by visiting a page once with `?edit=1`,
+and disable them with `?edit=0`. Every read and write API still requires a
+valid session for the configured `GITHUB_LOGIN` account.

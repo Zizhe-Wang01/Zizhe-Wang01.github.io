@@ -14,7 +14,6 @@ function enableSectionIndexLinks() {
     if (!heading || !indexLink) return;
     if (heading.dataset.sectionIndexEnabled === "true") return;
 
-    section.classList.add("md-nav__item--section-index");
     heading.dataset.sectionIndexEnabled = "true";
     heading.setAttribute("role", "link");
 
@@ -30,15 +29,6 @@ function enableSectionIndexLinks() {
       indexLink.click();
     });
   });
-
-  document
-    .querySelectorAll(".md-sidebar--primary .md-nav__list")
-    .forEach((list) => {
-      const activeSection = list.querySelector(
-        ":scope > .md-nav__item--section-index.md-nav__item--active"
-      );
-      list.classList.toggle("md-nav__list--focused", Boolean(activeSection));
-    });
 }
 
 if (typeof document$ !== "undefined") {

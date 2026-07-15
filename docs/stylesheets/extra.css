@@ -68,21 +68,32 @@
 
   /* The first child is the section's directory page, linked by its heading. */
   .md-sidebar--primary
-    .md-nav__item--section-index
+    .md-nav__item--nested:has(> .md-nav__link[for])
     > .md-nav
     > .md-nav__list
     > .md-nav__item:first-child {
     display: none;
   }
 
-  .md-sidebar--primary .md-nav__item--section-index > .md-nav__link[for] {
+  .md-sidebar--primary
+    .md-nav__item--nested:has(> .md-nav__link[for])
+    > .md-nav__link[for] {
     cursor: pointer;
     pointer-events: auto;
   }
 
+  /* Focus the open branch before JavaScript runs, avoiding a sidebar reflow. */
   .md-sidebar--primary
-    .md-nav__list--focused
-    > .md-nav__item--section-index:not(.md-nav__item--active) {
+    .md-nav__list:has(> .md-nav__item--nested.md-nav__item--active)
+    > .md-nav__item--nested:not(.md-nav__item--active) {
+    display: none;
+  }
+
+  /* Keep article rows identical whether or not the article has an inline TOC. */
+  .md-sidebar--primary
+    .md-nav__item--active
+    > .md-nav__link[for="__toc"],
+  .md-sidebar--primary .md-nav__item--active > .md-nav--secondary {
     display: none;
   }
 
@@ -266,6 +277,25 @@
   display: none;
 }
 
+/* Management controls are owner-only enhancements rendered by JavaScript. */
+a.md-content__button[rel~="edit"],
+.editor-page-context {
+  display: none !important;
+}
+
+.content-management-actions {
+  display: flex;
+  margin: -0.2rem 0 1.2rem;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.content-management-actions .md-button {
+  margin: 0;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.65rem;
+}
+
 .notes-editor {
   margin-top: 0.75rem;
 }
@@ -273,6 +303,9 @@
 .notes-editor[hidden],
 .notes-editor-create[hidden],
 .notes-editor-login[hidden],
+#notes-editor-article-fields[hidden],
+#notes-editor-directory-fields[hidden],
+#notes-editor-rename-fields[hidden],
 #notes-editor-error[hidden] {
   display: none !important;
 }
@@ -328,64 +361,6 @@
   margin: 0.3rem 0 1rem;
   color: var(--md-default-fg-color--light);
   font-size: 0.65rem;
-}
-
-.notes-directory-manager {
-  margin-top: 2rem;
-  padding-top: 1.25rem;
-  border-top: 1px solid var(--md-default-fg-color--lightest);
-}
-
-.notes-directory-manager > h2 {
-  margin: 0;
-}
-
-.notes-directory-manager > p {
-  margin: 0.3rem 0 0.8rem;
-  color: var(--md-default-fg-color--light);
-}
-
-.notes-directory-manager__new {
-  display: grid;
-  grid-template-columns: 1fr 1fr auto;
-  align-items: end;
-  gap: 0.5rem;
-}
-
-.notes-directory-manager__new label:first-child,
-.notes-directory-manager__new select:first-of-type {
-  grid-column: 1 / -1;
-}
-
-.notes-directory-manager__new label {
-  margin-bottom: -0.25rem;
-}
-
-.notes-directory-list {
-  display: flex;
-  margin-top: 1rem;
-  flex-direction: column;
-  gap: 0.45rem;
-}
-
-.notes-directory-list__item {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: center;
-  gap: 0.5rem;
-  padding-left: calc(var(--directory-depth, 0) * 0.8rem);
-}
-
-.notes-directory-list__item input {
-  margin: 0;
-}
-
-@media screen and (max-width: 44.984375em) {
-  .notes-directory-manager__new {
-    display: flex;
-    align-items: stretch;
-    flex-direction: column;
-  }
 }
 
 .notes-editor__toolbar {

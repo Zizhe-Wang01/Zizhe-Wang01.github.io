@@ -114,12 +114,12 @@ function decodeGitHubContent(content) {
   return decoder.decode(base64UrlDecode(content.replace(/\s/g, "").replace(/\+/g, "-").replace(/\//g, "_")));
 }
 
-async function getRepositoryFile(env, token, path) {
+async function getRepositoryFile(env, token, path, ref = env.GITHUB_BRANCH) {
   const encodedPath = path.split("/").map(encodeURIComponent).join("/");
   const data = await githubRequest(
     env,
     token,
-    `/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/contents/${encodedPath}?ref=${encodeURIComponent(env.GITHUB_BRANCH)}`
+    `/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/contents/${encodedPath}?ref=${encodeURIComponent(ref)}`
   );
   return { ...data, decodedContent: decodeGitHubContent(data.content) };
 }
@@ -134,11 +134,19 @@ async function repositoryFileExists(env, token, path) {
   }
 }
 
-async function commitFiles(env, token, files, message) {
+async function commitFiles(env, token, files, message, expectedShas = {}) {
   const repo = `/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}`;
   const ref = await githubRequest(env, token, `${repo}/git/ref/heads/${encodeURIComponent(env.GITHUB_BRANCH)}`);
   const parentSha = ref.object.sha;
   const parent = await githubRequest(env, token, `${repo}/git/commits/${parentSha}`);
+  await Promise.all(Object.entries(expectedShas).map(async ([path, expectedSha]) => {
+    const current = await getRepositoryFile(env, token, path, parentSha);
+    if (current.sha !== expectedSha) {
+      const error = new Error("内容已在其他地方更新，请刷新后重试");
+      error.status = 409;
+      throw error;
+    }
+  }));
   const blobs = await Promise.all(files.map(async (file) => {
     const blob = await githubRequest(env, token, `${repo}/git/blobs`, {
       method: "POST",
@@ -203,17 +211,50 @@ function pathExists(items, path) {
 
 function sectionPrefixExists(items, prefix) {
   return items.some((item) => (
-    (item.type === "section" && item.pathPrefix === prefix) ||
+    (item.type === "section" && (
+      item.pathPrefix === prefix ||
+      item.childPrefix === prefix ||
+      item.index?.replace(/(?:\/index)?\.md$/, "") === prefix
+    )) ||
     (item.type === "section" && sectionPrefixExists(item.items || [], prefix))
   ));
+}
+
+function validateNavigation(navigation) {
+  if (!navigation || navigation.version !== 1 || !Array.isArray(navigation.items)) {
+    throw new Error("Unsupported navigation data");
+  }
+  const ids = new Set();
+  const paths = new Set();
+  const pathPattern = /^[a-z0-9_-]+(?:\/[a-z0-9_-]+)*\.md$/;
+  const prefixPattern = /^[a-z0-9_-]+(?:\/[a-z0-9_-]+)*$/;
+
+  const visit = (items) => {
+    for (const item of items) {
+      if (item?.type === "page") {
+        if (!pathPattern.test(item.path) || paths.has(item.path)) throw new Error("Invalid navigation page");
+        paths.add(item.path);
+        continue;
+      }
+      if (item?.type !== "section" || !validTitle(item.title) ||
+          !/^[a-z0-9][a-z0-9-]{0,79}$/.test(item.id) ||
+          ids.has(item.id) || !pathPattern.test(item.index) || paths.has(item.index) ||
+          !prefixPattern.test(item.pathPrefix) || !Array.isArray(item.items) ||
+          (item.childPrefix && !prefixPattern.test(item.childPrefix))) {
+        throw new Error("Invalid navigation section");
+      }
+      ids.add(item.id);
+      paths.add(item.index);
+      visit(item.items);
+    }
+  };
+  visit(navigation.items);
 }
 
 async function getNavigation(env, token) {
   const file = await getRepositoryFile(env, token, NAVIGATION_PATH);
   const navigation = JSON.parse(file.decodedContent);
-  if (!navigation || navigation.version !== 1 || !Array.isArray(navigation.items)) {
-    throw new Error("Unsupported navigation data");
-  }
+  validateNavigation(navigation);
   return { file, navigation };
 }
 
@@ -285,7 +326,7 @@ async function updateFile(request, env, session) {
     return json({ error: "Markdown file is too large" }, 413, corsHeaders(request, env));
   }
 
-  const { navigation } = await getNavigation(env, session.token);
+  const { file: navigationFile, navigation } = await getNavigation(env, session.token);
   const relativePath = body.path.replace(/^docs\//, "");
   const directory = findSectionByIndex(navigation.items, relativePath);
   if (directory) {
@@ -293,15 +334,14 @@ async function updateFile(request, env, session) {
     if (!validTitle(title)) {
       return json({ error: "目录页必须保留一个一级标题" }, 400, corsHeaders(request, env));
     }
-    const current = await getRepositoryFile(env, session.token, body.path);
-    if (current.sha !== body.sha) {
-      return json({ error: "文章已在其他地方更新，请刷新后重试" }, 409, corsHeaders(request, env));
-    }
     directory.title = title;
     const commit = await commitFiles(env, session.token, [
       { path: body.path, content: body.content },
       { path: NAVIGATION_PATH, content: navigationContent(navigation) }
-    ], typeof body.message === "string" ? body.message : `更新 ${body.path}`);
+    ], typeof body.message === "string" ? body.message : `更新 ${body.path}`, {
+      [body.path]: body.sha,
+      [NAVIGATION_PATH]: navigationFile.sha
+    });
     return json({ commit }, 200, corsHeaders(request, env));
   }
 
@@ -334,7 +374,7 @@ async function createArticle(request, env, session) {
     return json({ error: "请填写有效的标题、URL 名称和所属目录" }, 400, corsHeaders(request, env));
   }
 
-  const { navigation } = await getNavigation(env, session.token);
+  const { file: navigationFile, navigation } = await getNavigation(env, session.token);
   const directory = findSection(navigation.items, body.directoryId);
   if (!directory || typeof directory.pathPrefix !== "string") {
     return json({ error: "所选目录不存在" }, 400, corsHeaders(request, env));
@@ -352,7 +392,7 @@ async function createArticle(request, env, session) {
   const commit = await commitFiles(env, session.token, [
     { path: repositoryPath, content: `# ${title}\n\n` },
     { path: NAVIGATION_PATH, content: navigationContent(navigation) }
-  ], `新建文章：${title}`);
+  ], `新建文章：${title}`, { [NAVIGATION_PATH]: navigationFile.sha });
 
   return json({
     commit,
@@ -367,13 +407,14 @@ async function createDirectory(request, env, session) {
     return json({ error: "请填写有效的目录名称和 URL 名称" }, 400, corsHeaders(request, env));
   }
 
-  const { navigation } = await getNavigation(env, session.token);
+  const { file: navigationFile, navigation } = await getNavigation(env, session.token);
   const parent = body.parentId ? findSection(navigation.items, body.parentId) : null;
   if (body.parentId && !parent) {
     return json({ error: "上级目录不存在" }, 400, corsHeaders(request, env));
   }
 
-  const pathPrefix = parent ? `${parent.pathPrefix}/${body.slug}` : body.slug;
+  const parentPrefix = parent?.childPrefix || parent?.pathPrefix;
+  const pathPrefix = parent ? `${parentPrefix}/${body.slug}` : body.slug;
   const indexPath = `${pathPrefix}/index.md`;
   const repositoryPath = `docs/${indexPath}`;
   if (sectionPrefixExists(navigation.items, pathPrefix) || await repositoryFileExists(env, session.token, repositoryPath)) {
@@ -386,6 +427,7 @@ async function createDirectory(request, env, session) {
     id: `dir-${body.slug}-${crypto.randomUUID().slice(0, 8)}`,
     title,
     pathPrefix,
+    childPrefix: pathPrefix,
     index: indexPath,
     items: []
   };
@@ -400,9 +442,14 @@ async function createDirectory(request, env, session) {
   const commit = await commitFiles(env, session.token, [
     { path: repositoryPath, content: indexContent },
     { path: NAVIGATION_PATH, content: navigationContent(navigation) }
-  ], `新建目录：${title}`);
+  ], `新建目录：${title}`, { [NAVIGATION_PATH]: navigationFile.sha });
 
-  return json({ commit, directory }, 201, corsHeaders(request, env));
+  return json({
+    commit,
+    directory,
+    path: repositoryPath,
+    url: `/${pathPrefix}/`
+  }, 201, corsHeaders(request, env));
 }
 
 async function renameDirectory(request, env, session) {
@@ -411,22 +458,27 @@ async function renameDirectory(request, env, session) {
     return json({ error: "请填写有效的目录名称" }, 400, corsHeaders(request, env));
   }
 
-  const { navigation } = await getNavigation(env, session.token);
+  const { file: navigationFile, navigation } = await getNavigation(env, session.token);
   const directory = findSection(navigation.items, body.id);
   if (!directory) return json({ error: "目录不存在" }, 404, corsHeaders(request, env));
 
   const title = body.title.trim();
   directory.title = title;
   const files = [{ path: NAVIGATION_PATH, content: navigationContent(navigation) }];
+  const expectedShas = { [NAVIGATION_PATH]: navigationFile.sha };
   if (directory.index) {
     const indexFile = await getRepositoryFile(env, session.token, `docs/${directory.index}`);
+    if (!markdownTitle(indexFile.decodedContent)) {
+      return json({ error: "目录页缺少一级标题" }, 400, corsHeaders(request, env));
+    }
     const content = indexFile.decodedContent.replace(/^#\s+.*$/m, (heading) => {
       const attributes = heading.match(/\s+\{[^}]+\}\s*$/)?.[0] || "";
       return `# ${title}${attributes}`;
     });
     files.push({ path: `docs/${directory.index}`, content });
+    expectedShas[`docs/${directory.index}`] = indexFile.sha;
   }
-  const commit = await commitFiles(env, session.token, files, `重命名目录：${title}`);
+  const commit = await commitFiles(env, session.token, files, `重命名目录：${title}`, expectedShas);
   return json({ commit, directory }, 200, corsHeaders(request, env));
 }
 
@@ -448,7 +500,8 @@ export default {
         if (url.pathname === "/api/directory" && request.method === "POST") return await createDirectory(request, env, session);
         if (url.pathname === "/api/directory" && request.method === "PUT") return await renameDirectory(request, env, session);
       } catch (error) {
-        const status = error.status === 401 ? 401 : 502;
+        const status = error.status === 422 ? 409 :
+          [400, 401, 403, 404, 409, 413].includes(error.status) ? error.status : 502;
         return json({ error: error.message }, status, corsHeaders(request, env));
       }
     }
