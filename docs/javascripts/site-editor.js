@@ -4,8 +4,25 @@ const notesEditor = {
   visibilityKey: "zosia-notes-editor-visible",
   publishKey: "zosia-notes-editor-publish",
   publishTimer: null,
-  publishChecking: false
+  publishChecking: false,
+  completionTimer: null
 };
+
+const commitPattern = /^[0-9a-f]{40}$/;
+
+function currentPagePath() {
+  return `${window.location.pathname}${window.location.search}`;
+}
+
+function editorPageUrl(parameters) {
+  const url = new URL("/editor/", window.location.origin);
+  Object.entries(parameters).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== "") {
+      url.searchParams.set(key, value);
+    }
+  });
+  return url.toString();
+}
 
 function isSiteEditorVisible() {
   const url = new URL(window.location.href);
@@ -34,20 +51,11 @@ function editorPathFromEditLink(link) {
 }
 
 function editorUrl(path) {
-  const url = new URL(`${window.location.origin}/editor/`);
-  url.searchParams.set("path", path);
-  url.searchParams.set("return", `${window.location.pathname}${window.location.search}`);
-  return url.toString();
+  return editorPageUrl({ path, return: currentPagePath() });
 }
 
 function managementUrl(mode, parameters = {}) {
-  const url = new URL(`${window.location.origin}/editor/`);
-  url.searchParams.set("mode", mode);
-  Object.entries(parameters).forEach(([key, value]) => {
-    if (value) url.searchParams.set(key, value);
-  });
-  url.searchParams.set("return", `${window.location.pathname}${window.location.search}`);
-  return url.toString();
+  return editorPageUrl({ mode, ...parameters, return: currentPagePath() });
 }
 
 function renderContextualEditorActions(visible) {
@@ -110,40 +118,47 @@ function enableSiteEditLinks() {
 }
 
 function renderSyncStatus(complete = false) {
+  const desktopTabs = window.matchMedia("(min-width: 76.25em)").matches
+    ? document.querySelector(".md-tabs")
+    : null;
+  const host = desktopTabs || document.body;
   let status = document.querySelector(".cms-sync-status");
   if (!status) {
     status = document.createElement("div");
     status.className = "cms-sync-status";
     status.setAttribute("role", "status");
-    document.body.appendChild(status);
   }
+  if (status.parentElement !== host) host.prepend(status);
   status.classList.toggle("cms-sync-status--complete", complete);
-  status.innerHTML = complete
-    ? "<span>已完成</span>"
-    : '<span class="cms-sync-status__spinner" aria-hidden="true"></span><span>同步中</span>';
+  const state = complete ? "complete" : "pending";
+  if (status.dataset.state !== state) {
+    const label = document.createElement("span");
+    label.textContent = complete ? "已完成" : "同步中";
+    if (complete) {
+      status.replaceChildren(label);
+    } else {
+      const spinner = document.createElement("span");
+      spinner.className = "cms-sync-status__spinner";
+      spinner.setAttribute("aria-hidden", "true");
+      status.replaceChildren(spinner, label);
+    }
+    status.dataset.state = state;
+  }
   return status;
 }
 
 function readPendingPublish() {
-  try {
-    const pending = JSON.parse(window.localStorage.getItem(notesEditor.publishKey));
-    if (!pending || !/^[0-9a-f]{40}$/.test(pending.commit) || !Number.isFinite(pending.startedAt)) {
-      return null;
-    }
-    return pending;
-  } catch (_) {
-    return null;
-  }
+  const commit = window.localStorage.getItem(notesEditor.publishKey);
+  return commitPattern.test(commit || "") ? commit : null;
 }
 
 function startBackgroundPublish(commit) {
-  if (!/^[0-9a-f]{40}$/.test(commit || "")) return;
-  window.localStorage.setItem(notesEditor.publishKey, JSON.stringify({
-    commit,
-    startedAt: Date.now()
-  }));
+  if (!commitPattern.test(commit || "")) return;
+  window.localStorage.setItem(notesEditor.publishKey, commit);
   if (notesEditor.publishTimer) window.clearTimeout(notesEditor.publishTimer);
+  if (notesEditor.completionTimer) window.clearTimeout(notesEditor.completionTimer);
   notesEditor.publishTimer = null;
+  notesEditor.completionTimer = null;
   renderSyncStatus();
 }
 
@@ -151,8 +166,8 @@ async function checkBackgroundPublish() {
   if (notesEditor.publishChecking) return;
   notesEditor.publishChecking = true;
   notesEditor.publishTimer = null;
-  const pending = readPendingPublish();
-  if (!pending) {
+  const pendingCommit = readPendingPublish();
+  if (!pendingCommit) {
     document.querySelector(".cms-sync-status")?.remove();
     notesEditor.publishChecking = false;
     return;
@@ -162,11 +177,13 @@ async function checkBackgroundPublish() {
   try {
     const response = await fetch(`/deployment.json?check=${Date.now()}`, { cache: "no-store" });
     const deployment = response.ok ? await response.json() : null;
-    const latestPending = readPendingPublish();
-    if (deployment?.sha === pending.commit && latestPending?.commit === pending.commit) {
+    if (deployment?.sha === pendingCommit && readPendingPublish() === pendingCommit) {
       window.localStorage.removeItem(notesEditor.publishKey);
       const status = renderSyncStatus(true);
-      window.setTimeout(() => status.remove(), 3000);
+      notesEditor.completionTimer = window.setTimeout(() => {
+        if (!readPendingPublish()) status.remove();
+        notesEditor.completionTimer = null;
+      }, 3000);
       notesEditor.publishChecking = false;
       return;
     }
@@ -182,19 +199,6 @@ function initializeBackgroundPublish() {
   if (!readPendingPublish()) return;
   renderSyncStatus();
   if (!notesEditor.publishTimer && !notesEditor.publishChecking) checkBackgroundPublish();
-}
-
-function submittedUrl(path) {
-  const destination = new URL(path, window.location.origin);
-  destination.searchParams.set("editor-submitted", "1");
-  return destination.toString();
-}
-
-function showSubmissionNotice() {
-  const url = new URL(window.location.href);
-  if (!url.searchParams.has("editor-submitted")) return;
-  url.searchParams.delete("editor-submitted");
-  history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
 }
 
 function readEditorSession() {
@@ -232,20 +236,21 @@ async function editorRequest(path, options = {}) {
 }
 
 function showEditorError(message) {
-  document.querySelector("#notes-editor")?.setAttribute("hidden", "");
-  document.querySelector("#notes-editor-create")?.setAttribute("hidden", "");
-  document.querySelector("#notes-editor-login")?.setAttribute("hidden", "");
-  const error = document.querySelector("#notes-editor-error");
+  showEditorPanel("notes-editor-error");
   const text = document.querySelector("#notes-editor-error-message");
   if (text) text.textContent = message;
-  error?.removeAttribute("hidden");
 }
 
 function showEditorLogin() {
-  document.querySelector("#notes-editor")?.setAttribute("hidden", "");
-  document.querySelector("#notes-editor-create")?.setAttribute("hidden", "");
-  document.querySelector("#notes-editor-error")?.setAttribute("hidden", "");
-  document.querySelector("#notes-editor-login")?.removeAttribute("hidden");
+  showEditorPanel("notes-editor-login");
+}
+
+function showEditorPanel(visibleId) {
+  ["notes-editor", "notes-editor-create", "notes-editor-login", "notes-editor-error"]
+    .forEach((id) => {
+      const panel = document.getElementById(id);
+      if (panel) panel.hidden = id !== visibleId;
+    });
 }
 
 function slugify(value) {
@@ -256,6 +261,29 @@ function slugify(value) {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 80);
+}
+
+function bindSlugSuggestion(titleInput, slugInput) {
+  let manuallyEdited = false;
+  slugInput?.addEventListener("input", () => { manuallyEdited = true; });
+  titleInput?.addEventListener("input", () => {
+    if (!manuallyEdited && slugInput) slugInput.value = slugify(titleInput.value);
+  });
+}
+
+function timestampSlug(prefix) {
+  const timestamp = new Date().toISOString().slice(0, 16).replace(/[-:T]/g, "");
+  return `${prefix}-${timestamp}`;
+}
+
+function openCreatedEditor(created, type, returnPath) {
+  startBackgroundPublish(created.commit);
+  window.location.assign(editorPageUrl({
+    path: created.path,
+    return: created.url,
+    back: returnPath,
+    created: type
+  }));
 }
 
 function navigationSections(items, depth = 0, result = []) {
@@ -333,26 +361,16 @@ async function initializeCreatePage(returnPath) {
 
     const articleTitle = document.querySelector("#notes-editor-new-title");
     const articleSlug = document.querySelector("#notes-editor-new-slug");
-    let articleSlugWasEdited = false;
-    articleSlug?.addEventListener("input", () => { articleSlugWasEdited = true; });
-    articleTitle?.addEventListener("input", () => {
-      if (!articleSlugWasEdited && articleSlug) articleSlug.value = slugify(articleTitle.value);
-    });
-
     const directoryTitle = document.querySelector("#notes-directory-title");
     const directorySlug = document.querySelector("#notes-directory-slug");
-    let directorySlugWasEdited = false;
-    directorySlug?.addEventListener("input", () => { directorySlugWasEdited = true; });
-    directoryTitle?.addEventListener("input", () => {
-      if (!directorySlugWasEdited && directorySlug) directorySlug.value = slugify(directoryTitle.value);
-    });
+    bindSlugSuggestion(articleTitle, articleSlug);
+    bindSlugSuggestion(directoryTitle, directorySlug);
 
     submit.addEventListener("click", async () => {
       submit.disabled = true;
       try {
         if (mode === "article") {
-          const fallbackSlug = `article-${new Date().toISOString().slice(0, 16).replace(/[-:T]/g, "")}`;
-          const slug = slugify(articleSlug?.value || "") || fallbackSlug;
+          const slug = slugify(articleSlug?.value || "") || timestampSlug("article");
           if (articleSlug) articleSlug.value = slug;
           status.textContent = "正在创建文章...";
           const created = await editorRequest("/api/article", {
@@ -363,31 +381,18 @@ async function initializeCreatePage(returnPath) {
               slug
             })
           });
-          const destination = new URL(`${window.location.origin}/editor/`);
-          destination.searchParams.set("path", created.path);
-          destination.searchParams.set("return", created.url);
-          destination.searchParams.set("back", returnPath);
-          destination.searchParams.set("created", "article");
-          startBackgroundPublish(created.commit);
-          window.location.assign(destination);
+          openCreatedEditor(created, "article", returnPath);
         } else if (mode === "directory") {
           status.textContent = "正在创建目录...";
-          const fallbackSlug = `directory-${new Date().toISOString().slice(0, 16).replace(/[-:T]/g, "")}`;
           const created = await editorRequest("/api/directory", {
             method: "POST",
             body: JSON.stringify({
               parentId: parentDirectory?.value || null,
               title: directoryTitle?.value.trim(),
-              slug: slugify(directorySlug?.value || "") || fallbackSlug
+              slug: slugify(directorySlug?.value || "") || timestampSlug("directory")
             })
           });
-          const destination = new URL(`${window.location.origin}/editor/`);
-          destination.searchParams.set("path", created.path);
-          destination.searchParams.set("return", created.url);
-          destination.searchParams.set("back", returnPath);
-          destination.searchParams.set("created", "directory");
-          startBackgroundPublish(created.commit);
-          window.location.assign(destination);
+          openCreatedEditor(created, "directory", returnPath);
         } else {
           status.textContent = "正在保存目录名称...";
           const updated = await editorRequest("/api/directory", {
@@ -398,7 +403,7 @@ async function initializeCreatePage(returnPath) {
             })
           });
           startBackgroundPublish(updated.commit);
-          window.location.assign(submittedUrl(returnPath));
+          window.location.assign(returnPath);
         }
       } catch (error) {
         if (error.message === "LOGIN_REQUIRED") showEditorLogin();
@@ -484,7 +489,7 @@ async function initializeEditorPage() {
         const destination = params.has("created")
           ? safeReturnPath(params.get("back"))
           : returnPath;
-        window.location.assign(submittedUrl(destination));
+        window.location.assign(destination);
       } catch (error) {
         if (error.message === "LOGIN_REQUIRED") showEditorLogin();
         else if (status) status.textContent = `保存失败：${error.message}`;
@@ -498,7 +503,6 @@ async function initializeEditorPage() {
 }
 
 function initializeSiteEditor() {
-  showSubmissionNotice();
   initializeBackgroundPublish();
   enableSiteEditLinks();
   initializeEditorPage();

@@ -1,3 +1,4 @@
+import hashlib
 import json
 import posixpath
 import re
@@ -5,6 +6,10 @@ from pathlib import Path
 
 _navigation = None
 _docs_dir = None
+_ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9-]{0,79}$")
+_PATH_PATTERN = re.compile(r"^[a-z0-9_-]+(?:/[a-z0-9_-]+)*\.md$")
+_PREFIX_PATTERN = re.compile(r"^[a-z0-9_-]+(?:/[a-z0-9_-]+)*$")
+_TITLE_PATTERN = re.compile(r"^#\s+(.+?)\s*(?:\{[^}]+\})?$", re.MULTILINE)
 
 
 def _validate_navigation(navigation):
@@ -13,16 +18,12 @@ def _validate_navigation(navigation):
 
     ids = set()
     paths = set()
-    id_pattern = re.compile(r"^[a-z0-9][a-z0-9-]{0,79}$")
-    path_pattern = re.compile(r"^[a-z0-9_-]+(?:/[a-z0-9_-]+)*\.md$")
-    prefix_pattern = re.compile(r"^[a-z0-9_-]+(?:/[a-z0-9_-]+)*$")
-
     def visit(items):
         for item in items:
             item_type = item.get("type")
             if item_type == "page":
                 path = item.get("path")
-                if not isinstance(path, str) or not path_pattern.fullmatch(path):
+                if not isinstance(path, str) or not _PATH_PATTERN.fullmatch(path):
                     raise ValueError("navigation page entries require a Markdown path")
                 if path in paths:
                     raise ValueError(f"duplicate navigation path: {path}")
@@ -35,19 +36,19 @@ def _validate_navigation(navigation):
                 raise ValueError("navigation sections are missing required fields")
             if (
                 not isinstance(item["id"], str)
-                or not id_pattern.fullmatch(item["id"])
+                or not _ID_PATTERN.fullmatch(item["id"])
                 or not isinstance(item["title"], str)
                 or not item["title"].strip()
                 or "\n" in item["title"]
                 or not isinstance(item["index"], str)
-                or not path_pattern.fullmatch(item["index"])
+                or not _PATH_PATTERN.fullmatch(item["index"])
                 or not isinstance(item["pathPrefix"], str)
-                or not prefix_pattern.fullmatch(item["pathPrefix"])
+                or not _PREFIX_PATTERN.fullmatch(item["pathPrefix"])
                 or (
                     item.get("childPrefix") is not None
                     and (
                         not isinstance(item["childPrefix"], str)
-                        or not prefix_pattern.fullmatch(item["childPrefix"])
+                        or not _PREFIX_PATTERN.fullmatch(item["childPrefix"])
                     )
                 )
             ):
@@ -68,11 +69,14 @@ def _mkdocs_item(item):
         path = item["path"]
         return {item["title"]: path} if item.get("title") else path
 
-    children = []
-    if item.get("index"):
-        children.append(item["index"])
+    children = [item["index"]]
     children.extend(_mkdocs_item(child) for child in item.get("items", []))
     return {item["title"]: children}
+
+
+def _markdown_title(content, fallback=None):
+    match = _TITLE_PATTERN.search(content)
+    return match.group(1).strip() if match else fallback
 
 
 def _validate_directory_titles(items, docs_dir):
@@ -81,8 +85,7 @@ def _validate_directory_titles(items, docs_dir):
             continue
         index_path = docs_dir / item["index"]
         content = index_path.read_text(encoding="utf-8")
-        match = re.search(r"^#\s+(.+?)\s*(?:\{[^}]+\})?$", content, re.MULTILINE)
-        page_title = match.group(1).strip() if match else None
+        page_title = _markdown_title(content)
         if page_title != item["title"]:
             raise ValueError(
                 f"directory title mismatch for {item['index']}: "
@@ -91,12 +94,26 @@ def _validate_directory_titles(items, docs_dir):
         _validate_directory_titles(item.get("items", []), docs_dir)
 
 
+def _version_local_assets(config, docs_dir):
+    for key in ("extra_javascript", "extra_css"):
+        versioned = []
+        for asset in config.get(key, []):
+            if "://" in asset:
+                versioned.append(asset)
+                continue
+            path = docs_dir / asset.split("?", 1)[0]
+            digest = hashlib.sha256(path.read_bytes()).hexdigest()[:10]
+            versioned.append(f"{path.relative_to(docs_dir).as_posix()}?v={digest}")
+        config[key] = versioned
+
+
 def on_config(config):
     global _navigation, _docs_dir
     navigation_path = Path(config["config_file_path"]).parent / "docs" / "navigation.json"
     navigation = json.loads(navigation_path.read_text(encoding="utf-8"))
     _validate_navigation(navigation)
     _validate_directory_titles(navigation["items"], navigation_path.parent)
+    _version_local_assets(config, navigation_path.parent)
     config["nav"] = [_mkdocs_item(item) for item in navigation["items"]]
     _navigation = navigation
     _docs_dir = navigation_path.parent
@@ -132,8 +149,7 @@ def _find_page_context(items, path, parent=None):
 
 def _page_title(path):
     content = (_docs_dir / path).read_text(encoding="utf-8")
-    match = re.search(r"^#\s+(.+?)\s*(?:\{[^}]+\})?$", content, re.MULTILINE)
-    return match.group(1).strip() if match else Path(path).stem
+    return _markdown_title(content, Path(path).stem)
 
 
 def on_page_markdown(markdown, page, **kwargs):

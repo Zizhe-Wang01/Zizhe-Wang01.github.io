@@ -13,8 +13,8 @@ window.MathJax = {
 
 if (typeof document$ !== "undefined") {
   document$.subscribe(() => {
-    if (typeof MathJax.typesetPromise === "function") {
-      MathJax.typesetPromise();
+    if (typeof window.MathJax?.typesetPromise === "function") {
+      window.MathJax.typesetPromise();
     }
   });
 }

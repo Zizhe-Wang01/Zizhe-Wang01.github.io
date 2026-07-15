@@ -108,9 +108,13 @@
   color: var(--md-accent-fg-color);
 }
 
+.md-tabs {
+  position: relative;
+}
+
 @media screen and (min-width: 76.25em) {
   .md-tabs__inner {
-    padding-left: 4.9rem;
+    padding-left: 6.2rem;
   }
 }
 
@@ -202,31 +206,6 @@
   margin-top: 1.45rem;
   margin-bottom: 0.65rem;
   font-size: 1rem;
-}
-
-.series-links {
-  display: flex;
-  max-width: 34rem;
-  margin-top: 0.7rem;
-  flex-direction: column;
-  gap: 0.55rem;
-}
-
-.series-links > a {
-  display: block;
-  padding: 0.7rem 0.85rem;
-  border: 1px solid var(--md-default-fg-color--lightest);
-  border-radius: 6px;
-  background: var(--md-default-bg-color);
-  color: var(--md-accent-fg-color);
-  font-weight: 650;
-  transition: border-color 140ms ease, background-color 140ms ease;
-}
-
-.series-links > a:hover {
-  border-color: var(--md-accent-fg-color);
-  background: var(--md-accent-fg-color--transparent);
-  text-decoration: none;
 }
 
 .md-typeset .grid.cards > ul > li,
@@ -429,9 +408,9 @@ a.md-content__button[rel~="edit"],
 }
 
 .cms-sync-status {
-  position: fixed;
-  right: 1rem;
-  bottom: 1rem;
+  position: absolute;
+  top: 50%;
+  left: 0.7rem;
   z-index: 10;
   display: flex;
   align-items: center;
@@ -445,6 +424,7 @@ a.md-content__button[rel~="edit"],
   font-size: 0.66rem;
   font-weight: 650;
   animation: cms-sync-status-in 160ms ease-out;
+  transform: translateY(-50%);
 }
 
 .cms-sync-status__spinner {
@@ -471,6 +451,14 @@ a.md-content__button[rel~="edit"],
 @keyframes cms-sync-status-in {
   from {
     opacity: 0;
-    transform: translateY(0.25rem);
+  }
+}
+
+@media screen and (max-width: 76.234375em) {
+  .cms-sync-status {
+    position: fixed;
+    top: 3.2rem;
+    left: 0.7rem;
+    transform: none;
   }
 }
