@@ -270,6 +270,13 @@
   margin-top: 0.75rem;
 }
 
+.notes-editor[hidden],
+.notes-editor-create[hidden],
+.notes-editor-login[hidden],
+#notes-editor-error[hidden] {
+  display: none !important;
+}
+
 .notes-editor-create {
   max-width: 34rem;
   margin-top: 0.75rem;

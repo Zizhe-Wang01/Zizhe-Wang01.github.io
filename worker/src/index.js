@@ -448,7 +448,8 @@ export default {
         if (url.pathname === "/api/directory" && request.method === "POST") return await createDirectory(request, env, session);
         if (url.pathname === "/api/directory" && request.method === "PUT") return await renameDirectory(request, env, session);
       } catch (error) {
-        return json({ error: error.message }, 502, corsHeaders(request, env));
+        const status = error.status === 401 ? 401 : 502;
+        return json({ error: error.message }, status, corsHeaders(request, env));
       }
     }
 
