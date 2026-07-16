@@ -10,6 +10,12 @@ _ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9-]{0,79}$")
 _PATH_PATTERN = re.compile(r"^[a-z0-9_-]+(?:/[a-z0-9_-]+)*\.md$")
 _PREFIX_PATTERN = re.compile(r"^[a-z0-9_-]+(?:/[a-z0-9_-]+)*$")
 _TITLE_PATTERN = re.compile(r"^#\s+(.+?)\s*(?:\{[^}]+\})?$", re.MULTILINE)
+_IMAGE_WITHOUT_LOADING_PATTERN = re.compile(
+    r"<img\b(?![^>]*\bloading\s*=)", re.IGNORECASE
+)
+_IMAGE_WITHOUT_DECODING_PATTERN = re.compile(
+    r"<img\b(?![^>]*\bdecoding\s*=)", re.IGNORECASE
+)
 
 
 def _validate_navigation(navigation):
@@ -185,3 +191,8 @@ def on_page_markdown(markdown, page, **kwargs):
         f'{directory_attribute} hidden></div>'
     )
     return re.sub(r"(^#\s+.*$)", rf"\1\n\n{marker}", markdown, count=1, flags=re.MULTILINE)
+
+
+def on_page_content(html, **kwargs):
+    html = _IMAGE_WITHOUT_LOADING_PATTERN.sub('<img loading="lazy"', html)
+    return _IMAGE_WITHOUT_DECODING_PATTERN.sub('<img decoding="async"', html)
