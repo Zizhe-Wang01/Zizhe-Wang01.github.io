@@ -216,11 +216,6 @@ function safeReturnPath(value) {
   return value;
 }
 
-function editorSaveDestination(params, returnPath) {
-  if (params.get("created") !== "article") return returnPath;
-  return safeReturnPath(params.get("back") || returnPath);
-}
-
 async function editorRequest(path, options = {}) {
   const session = readEditorSession();
   const headers = new Headers(options.headers || {});
@@ -491,7 +486,10 @@ async function initializeEditorPage() {
           })
         });
         startBackgroundPublish(updated.commit);
-        window.location.assign(editorSaveDestination(params, returnPath));
+        const destination = params.has("created")
+          ? safeReturnPath(params.get("back"))
+          : returnPath;
+        window.location.assign(destination);
       } catch (error) {
         if (error.message === "LOGIN_REQUIRED") showEditorLogin();
         else if (status) status.textContent = `保存失败：${error.message}`;
