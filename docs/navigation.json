@@ -57,7 +57,12 @@
           "pathPrefix": "ai/ai-infra",
           "childPrefix": "ai/ai-infra",
           "index": "ai/ai-infra/index.md",
-          "items": []
+          "items": [
+            {
+              "type": "page",
+              "path": "ai/ai-infra/profiler.md"
+            }
+          ]
         }
       ]
     },
