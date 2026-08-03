@@ -1,4 +1,4 @@
-function normalizeEmptyNestedSections() {
+function normalizeCollapsedNestedSections() {
   const sections = document.querySelectorAll(
     ".md-sidebar--primary .md-nav__item--nested .md-nav__item--nested"
   );
@@ -11,7 +11,6 @@ function normalizeEmptyNestedSections() {
     const indexLink = container?.querySelector(":scope > a.md-nav__link");
 
     if (!container || !toggle || !childNav || !childList || !indexLink) return;
-    if (childList.children.length > 0) return;
 
     const indexItem = document.createElement("li");
     indexItem.className = "md-nav__item";
@@ -19,7 +18,7 @@ function normalizeEmptyNestedSections() {
       indexItem.classList.add("md-nav__item--active");
     }
     indexItem.append(indexLink.cloneNode(true));
-    childList.append(indexItem);
+    childList.prepend(indexItem);
 
     const heading = document.createElement("label");
     heading.className = "md-nav__link";
@@ -42,7 +41,7 @@ function normalizeEmptyNestedSections() {
 function enableSectionIndexLinks() {
   const desktop = window.matchMedia("(min-width: 76.25em)");
 
-  normalizeEmptyNestedSections();
+  normalizeCollapsedNestedSections();
 
   const sections = document.querySelectorAll(
     ".md-sidebar--primary .md-nav__item--nested"
