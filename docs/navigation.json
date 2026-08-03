@@ -53,7 +53,7 @@
         {
           "type": "section",
           "id": "dir-ai-infra-abc50a37",
-          "title": "ai infra",
+          "title": "AI Infra",
           "pathPrefix": "ai/ai-infra",
           "childPrefix": "ai/ai-infra",
           "index": "ai/ai-infra/index.md",

@@ -3,7 +3,7 @@ hide:
   - toc
 ---
 
-# ai infra {.directory-title}
+# AI Infra {.directory-title}
 
 ## 文章 {.directory-heading}
 
