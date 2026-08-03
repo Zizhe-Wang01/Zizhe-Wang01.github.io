@@ -49,6 +49,15 @@
               "path": "ai/agenticrl_01.md"
             }
           ]
+        },
+        {
+          "type": "section",
+          "id": "dir-ai-infra-abc50a37",
+          "title": "ai infra",
+          "pathPrefix": "ai/ai-infra",
+          "childPrefix": "ai/ai-infra",
+          "index": "ai/ai-infra/index.md",
+          "items": []
         }
       ]
     },
