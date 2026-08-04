@@ -59,8 +59,30 @@
           "index": "ai/ai-infra/index.md",
           "items": [
             {
-              "type": "page",
-              "path": "ai/ai-infra/profiler.md"
+              "type": "section",
+              "id": "dir-ai-infra-profiler",
+              "title": "Profiler",
+              "pathPrefix": "ai/ai-infra/profiler",
+              "childPrefix": "ai/ai-infra/profiler",
+              "index": "ai/ai-infra/profiler.md",
+              "items": [
+                {
+                  "type": "page",
+                  "path": "ai/ai-infra/profiler/nsys.md"
+                },
+                {
+                  "type": "page",
+                  "path": "ai/ai-infra/profiler/torch-profiler.md"
+                },
+                {
+                  "type": "page",
+                  "path": "ai/ai-infra/profiler/ncu.md"
+                },
+                {
+                  "type": "page",
+                  "path": "ai/ai-infra/profiler/custom-profiler.md"
+                }
+              ]
             }
           ]
         }
