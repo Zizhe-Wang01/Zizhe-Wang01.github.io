@@ -85,6 +85,20 @@
               ]
             }
           ]
+        },
+        {
+          "type": "section",
+          "id": "dir-latest-paper-reviews",
+          "title": "最新论文 解读",
+          "pathPrefix": "ai/latest-paper-reviews",
+          "childPrefix": "ai/latest-paper-reviews",
+          "index": "ai/latest-paper-reviews/index.md",
+          "items": [
+            {
+              "type": "page",
+              "path": "ai/latest-paper-reviews/kimi-k3.md"
+            }
+          ]
         }
       ]
     },
