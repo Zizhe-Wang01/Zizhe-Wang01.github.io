@@ -18,17 +18,17 @@
           "type": "section",
           "id": "rl",
           "title": "强化学习系列",
-          "pathPrefix": "ai",
+          "pathPrefix": "ai/reinforcement-learning",
           "childPrefix": "ai/reinforcement-learning",
           "index": "ai/reinforcement-learning.md",
           "items": [
             {
               "type": "page",
-              "path": "ai/rl_01.md"
+              "path": "ai/reinforcement-learning/basic-concepts.md"
             },
             {
               "type": "page",
-              "path": "ai/rlhf.md"
+              "path": "ai/reinforcement-learning/rlhf.md"
             }
           ]
         },
@@ -36,17 +36,17 @@
           "type": "section",
           "id": "agentic",
           "title": "Agentic RL 系列",
-          "pathPrefix": "ai",
+          "pathPrefix": "ai/agenticrl",
           "childPrefix": "ai/agenticrl",
           "index": "ai/agenticrl.md",
           "items": [
             {
               "type": "page",
-              "path": "ai/agenticrloverview.md"
+              "path": "ai/agenticrl/overview.md"
             },
             {
               "type": "page",
-              "path": "ai/agenticrl_01.md"
+              "path": "ai/agenticrl/policy-gradient-loss.md"
             }
           ]
         },
