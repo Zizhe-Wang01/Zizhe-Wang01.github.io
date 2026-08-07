@@ -5,7 +5,8 @@ workers_dev = true
 preview_urls = false
 
 [vars]
-ALLOWED_ORIGIN = "https://zizhe-wang01.github.io"
+ALLOWED_ORIGIN = "https://zosia.bot.cd"
+SITE_ORIGIN = "https://zizhe-wang01.github.io"
 GITHUB_OWNER = "Zizhe-Wang01"
 GITHUB_REPO = "Zizhe-Wang01.github.io"
 GITHUB_BRANCH = "main"

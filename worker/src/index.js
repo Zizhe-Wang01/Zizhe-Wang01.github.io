@@ -499,6 +499,47 @@ function errorStatus(error) {
   return API_ERROR_STATUSES.has(error.status) ? error.status : 502;
 }
 
+async function proxySite(request, env) {
+  if (request.method !== "GET" && request.method !== "HEAD") {
+    return new Response("Method Not Allowed", {
+      status: 405,
+      headers: { Allow: "GET, HEAD" }
+    });
+  }
+
+  const incomingUrl = new URL(request.url);
+  const upstreamUrl = new URL(`${incomingUrl.pathname}${incomingUrl.search}`, env.SITE_ORIGIN);
+  const headers = new Headers();
+  ["Accept", "Accept-Encoding", "If-Modified-Since", "If-None-Match", "Range"].forEach((name) => {
+    const value = request.headers.get(name);
+    if (value) headers.set(name, value);
+  });
+
+  const upstream = await fetch(upstreamUrl, {
+    method: request.method,
+    headers,
+    redirect: "manual"
+  });
+  const responseHeaders = new Headers(upstream.headers);
+  responseHeaders.delete("Set-Cookie");
+
+  const location = responseHeaders.get("Location");
+  if (location) {
+    const redirectUrl = new URL(location, upstreamUrl);
+    if (redirectUrl.origin === new URL(env.SITE_ORIGIN).origin) {
+      redirectUrl.protocol = incomingUrl.protocol;
+      redirectUrl.host = incomingUrl.host;
+      responseHeaders.set("Location", redirectUrl.toString());
+    }
+  }
+
+  return new Response(request.method === "HEAD" ? null : upstream.body, {
+    status: upstream.status,
+    statusText: upstream.statusText,
+    headers: responseHeaders
+  });
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -518,6 +559,6 @@ export default {
       }
     }
 
-    return apiJson(request, env, { error: "Not found" }, 404);
+    return proxySite(request, env);
   }
 };

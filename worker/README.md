@@ -9,8 +9,8 @@ committed atomically and reject stale revisions instead of overwriting them.
 ## One-time setup
 
 1. Create a GitHub OAuth App.
-   - Homepage URL: `https://zizhe-wang01.github.io`
-   - Callback URL: use the Worker URL plus `/auth/callback`
+   - Homepage URL: `https://zosia.bot.cd`
+   - Callback URL: `https://zosia.bot.cd/auth/callback`
 2. From this directory, authenticate and deploy:
 
    ```bash
@@ -24,6 +24,10 @@ committed atomically and reject stale revisions instead of overwriting them.
    Generate `SESSION_SECRET` with `openssl rand -hex 32`.
 3. Confirm the deployed Worker URL in `docs/javascripts/editor-config.js`.
 4. Build and deploy the MkDocs site.
+
+The custom domain is the single public entry point. The Worker handles
+`/auth/*` and `/api/*` itself and proxies all other read-only requests to the
+GitHub Pages origin configured by `SITE_ORIGIN`.
 
 Never commit OAuth secrets to this repository.
 
