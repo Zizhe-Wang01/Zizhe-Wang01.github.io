@@ -8,97 +8,87 @@
     },
     {
       "type": "section",
-      "id": "ai",
-      "title": "算法和 Agent",
-      "pathPrefix": "ai",
-      "childPrefix": "ai",
-      "index": "ai/index.md",
+      "id": "rl",
+      "title": "强化学习系列",
+      "pathPrefix": "reinforcement-learning",
+      "childPrefix": "reinforcement-learning",
+      "index": "reinforcement-learning.md",
+      "items": [
+        {
+          "type": "page",
+          "path": "reinforcement-learning/basic-concepts.md"
+        },
+        {
+          "type": "page",
+          "path": "reinforcement-learning/rlhf.md"
+        }
+      ]
+    },
+    {
+      "type": "section",
+      "id": "agentic",
+      "title": "Agentic RL 系列",
+      "pathPrefix": "agenticrl",
+      "childPrefix": "agenticrl",
+      "index": "agenticrl.md",
+      "items": [
+        {
+          "type": "page",
+          "path": "agenticrl/overview.md"
+        },
+        {
+          "type": "page",
+          "path": "agenticrl/policy-gradient-loss.md"
+        }
+      ]
+    },
+    {
+      "type": "section",
+      "id": "dir-ai-infra-abc50a37",
+      "title": "AI Infra",
+      "pathPrefix": "ai-infra",
+      "childPrefix": "ai-infra",
+      "index": "ai-infra/index.md",
       "items": [
         {
           "type": "section",
-          "id": "rl",
-          "title": "强化学习系列",
-          "pathPrefix": "ai/reinforcement-learning",
-          "childPrefix": "ai/reinforcement-learning",
-          "index": "ai/reinforcement-learning.md",
+          "id": "dir-ai-infra-profiler",
+          "title": "Profiler",
+          "pathPrefix": "ai-infra/profiler",
+          "childPrefix": "ai-infra/profiler",
+          "index": "ai-infra/profiler.md",
           "items": [
             {
               "type": "page",
-              "path": "ai/reinforcement-learning/basic-concepts.md"
+              "path": "ai-infra/profiler/nsys.md"
             },
             {
               "type": "page",
-              "path": "ai/reinforcement-learning/rlhf.md"
-            }
-          ]
-        },
-        {
-          "type": "section",
-          "id": "agentic",
-          "title": "Agentic RL 系列",
-          "pathPrefix": "ai/agenticrl",
-          "childPrefix": "ai/agenticrl",
-          "index": "ai/agenticrl.md",
-          "items": [
-            {
-              "type": "page",
-              "path": "ai/agenticrl/overview.md"
+              "path": "ai-infra/profiler/torch-profiler.md"
             },
             {
               "type": "page",
-              "path": "ai/agenticrl/policy-gradient-loss.md"
-            }
-          ]
-        },
-        {
-          "type": "section",
-          "id": "dir-ai-infra-abc50a37",
-          "title": "AI Infra",
-          "pathPrefix": "ai/ai-infra",
-          "childPrefix": "ai/ai-infra",
-          "index": "ai/ai-infra/index.md",
-          "items": [
-            {
-              "type": "section",
-              "id": "dir-ai-infra-profiler",
-              "title": "Profiler",
-              "pathPrefix": "ai/ai-infra/profiler",
-              "childPrefix": "ai/ai-infra/profiler",
-              "index": "ai/ai-infra/profiler.md",
-              "items": [
-                {
-                  "type": "page",
-                  "path": "ai/ai-infra/profiler/nsys.md"
-                },
-                {
-                  "type": "page",
-                  "path": "ai/ai-infra/profiler/torch-profiler.md"
-                },
-                {
-                  "type": "page",
-                  "path": "ai/ai-infra/profiler/ncu.md"
-                },
-                {
-                  "type": "page",
-                  "path": "ai/ai-infra/profiler/custom-profiler.md"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "type": "section",
-          "id": "dir-latest-paper-reviews",
-          "title": "最新论文 解读",
-          "pathPrefix": "ai/latest-paper-reviews",
-          "childPrefix": "ai/latest-paper-reviews",
-          "index": "ai/latest-paper-reviews/index.md",
-          "items": [
+              "path": "ai-infra/profiler/ncu.md"
+            },
             {
               "type": "page",
-              "path": "ai/latest-paper-reviews/kimi-k3.md"
+              "path": "ai-infra/profiler/custom-profiler.md"
             }
           ]
+        }
+      ]
+    },
+    {
+      "type": "section",
+      "id": "dir-latest-paper-reviews",
+      "title": "最新论文 解读",
+      "pathPrefix": "latest-paper-reviews",
+      "childPrefix": "latest-paper-reviews",
+      "index": "latest-paper-reviews/index.md",
+      "items": [
+        {
+          "type": "page",
+          "path": "latest-paper-reviews/kimi-k3.md"
         }
       ]
     },

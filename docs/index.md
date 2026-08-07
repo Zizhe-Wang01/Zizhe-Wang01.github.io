@@ -2,13 +2,37 @@
 
 <div class="grid cards" markdown>
 
--   :material-brain: **算法和 Agent**
+-   :material-chart-bell-curve-cumulative: **强化学习系列**
 
     ---
 
-    大模型、Agent、强化学习等相关内容。
+    强化学习基础与 RLHF 学习笔记。
 
-    [开始阅读](ai/index.md)
+    [开始阅读](reinforcement-learning.md)
+
+-   :material-robot-outline: **Agentic RL 系列**
+
+    ---
+
+    Agentic RL 的算法与系统实践。
+
+    [开始阅读](agenticrl.md)
+
+-   :material-server: **AI Infra**
+
+    ---
+
+    AI 基础设施与性能分析工具。
+
+    [开始阅读](ai-infra/index.md)
+
+-   :material-file-document-search: **最新论文解读**
+
+    ---
+
+    最新 AI 论文的阅读与梳理。
+
+    [开始阅读](latest-paper-reviews/index.md)
 
 -   :material-robot-industrial: **具身智能**
 
