@@ -113,7 +113,28 @@
       "pathPrefix": "jiu-jitsu",
       "childPrefix": "jiu-jitsu",
       "index": "jiu-jitsu/index.md",
-      "items": []
+      "items": [
+        {
+          "type": "page",
+          "path": "jiu-jitsu/overview.md"
+        },
+        {
+          "type": "page",
+          "path": "jiu-jitsu/nogi-basics.md"
+        },
+        {
+          "type": "page",
+          "path": "jiu-jitsu/de-la-riva-guard.md"
+        },
+        {
+          "type": "page",
+          "path": "jiu-jitsu/23-pass.md"
+        },
+        {
+          "type": "page",
+          "path": "jiu-jitsu/double-sleeve-spider.md"
+        }
+      ]
     },
     {
       "type": "section",
