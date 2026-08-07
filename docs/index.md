@@ -42,6 +42,14 @@
 
     [开始阅读](robotics/index.md)
 
+-   :material-karate: **柔术训练**
+
+    ---
+
+    柔术技术、训练记录与实战复盘。
+
+    [开始阅读](jiu-jitsu/index.md)
+
 -   :material-note-edit: **随笔**
 
     ---

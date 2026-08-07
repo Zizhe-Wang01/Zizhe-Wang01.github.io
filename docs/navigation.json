@@ -108,6 +108,15 @@
     },
     {
       "type": "section",
+      "id": "jiu-jitsu",
+      "title": "柔术训练",
+      "pathPrefix": "jiu-jitsu",
+      "childPrefix": "jiu-jitsu",
+      "index": "jiu-jitsu/index.md",
+      "items": []
+    },
+    {
+      "type": "section",
       "id": "notes",
       "title": "随笔",
       "pathPrefix": "notes",

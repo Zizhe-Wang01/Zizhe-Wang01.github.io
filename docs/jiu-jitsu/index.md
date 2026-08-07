@@ -1,0 +1,10 @@
+---
+hide:
+  - toc
+---
+
+# 柔术训练 {.directory-title}
+
+## 文章 {.directory-heading}
+
+<!-- auto-directory -->
