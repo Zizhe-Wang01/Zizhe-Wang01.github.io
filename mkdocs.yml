@@ -9,6 +9,9 @@ edit_uri: edit/main/docs/
 extra_javascript:
   - javascripts/mathjax.js
   - javascripts/section-index.js
+  - javascripts/markmap-config.js
+  - https://cdn.jsdelivr.net/npm/markmap-autoloader@0.18.12
+  - javascripts/markmap.js
   - javascripts/editor-config.js
   - javascripts/site-editor.js
 
@@ -78,6 +81,9 @@ markdown_extensions:
       custom_fences:
         - name: mermaid
           class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+        - name: markmap
+          class: markmap-source
           format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.tasklist:
       custom_checkbox: true

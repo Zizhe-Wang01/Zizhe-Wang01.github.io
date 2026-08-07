@@ -470,3 +470,45 @@ a.md-content__button[rel~="edit"],
     transform: none;
   }
 }
+
+.markmap {
+  --markmap-text-color: var(--md-default-fg-color);
+
+  position: relative;
+  width: 100%;
+  height: min(72vh, 46rem);
+  min-height: 34rem;
+  margin: 1.25rem 0 2rem;
+  overflow: hidden;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 12px;
+  background:
+    radial-gradient(
+      circle at 50% 50%,
+      var(--md-accent-fg-color--transparent),
+      transparent 58%
+    ),
+    var(--md-default-bg-color);
+  box-shadow: var(--md-shadow-z1);
+}
+
+.markmap > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.markmap .markmap-toolbar {
+  right: 0.75rem;
+  bottom: 0.75rem;
+}
+
+@media screen and (max-width: 44.984375em) {
+  .markmap {
+    height: 30rem;
+    min-height: 30rem;
+    margin-inline: -0.4rem;
+    width: calc(100% + 0.8rem);
+    border-radius: 8px;
+  }
+}
