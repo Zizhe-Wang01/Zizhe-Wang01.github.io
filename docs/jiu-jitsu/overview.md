@@ -4,7 +4,7 @@
 ---
 markmap:
   colorFreezeLevel: 1
-  initialExpandLevel: 2
+  initialExpandLevel: -1
   maxWidth: 260
   spacingHorizontal: 110
   spacingVertical: 8
