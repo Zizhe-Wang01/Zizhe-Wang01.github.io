@@ -81,7 +81,7 @@
     {
       "type": "section",
       "id": "dir-latest-paper-reviews",
-      "title": "最新论文 解读",
+      "title": "最新论文解读",
       "pathPrefix": "latest-paper-reviews",
       "childPrefix": "latest-paper-reviews",
       "index": "latest-paper-reviews/index.md",

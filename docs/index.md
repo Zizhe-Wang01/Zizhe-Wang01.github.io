@@ -26,7 +26,7 @@
 
     [开始阅读](ai-infra/index.md)
 
--   :material-file-document-search: **最新论文解读**
+-   :material-file-document-outline: **最新论文解读**
 
     ---
 
