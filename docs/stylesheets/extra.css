@@ -498,9 +498,54 @@ a.md-content__button[rel~="edit"],
   height: 100%;
 }
 
-.markmap .markmap-toolbar {
+.markmap .mm-toolbar {
   right: 0.75rem;
   bottom: 0.75rem;
+}
+
+.markmap-fullscreen {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 3;
+  display: grid;
+  width: 2.1rem;
+  height: 2.1rem;
+  padding: 0;
+  place-items: center;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 50%;
+  background: var(--md-default-bg-color);
+  box-shadow: var(--md-shadow-z1);
+  color: var(--md-default-fg-color--light);
+  cursor: pointer;
+}
+
+.markmap-fullscreen:hover,
+.markmap-fullscreen:focus-visible,
+.markmap-fullscreen.is-active {
+  border-color: var(--md-accent-fg-color);
+  color: var(--md-accent-fg-color);
+}
+
+.markmap-fullscreen:focus-visible {
+  outline: 2px solid var(--md-accent-fg-color);
+  outline-offset: 2px;
+}
+
+.markmap-fullscreen svg {
+  width: 1rem;
+  height: 1rem;
+  fill: currentColor;
+}
+
+.markmap:fullscreen {
+  width: 100vw;
+  height: 100vh;
+  min-height: 100vh;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
 }
 
 @media screen and (max-width: 44.984375em) {
