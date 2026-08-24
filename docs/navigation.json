@@ -137,6 +137,10 @@
         {
           "type": "page",
           "path": "jiu-jitsu/passing-double-sleeve-spider.md"
+        },
+        {
+          "type": "page",
+          "path": "jiu-jitsu/closed-guard-leg-lock-entry.md"
         }
       ]
     },
@@ -147,7 +151,12 @@
       "pathPrefix": "notes",
       "childPrefix": "notes",
       "index": "notes/index.md",
-      "items": []
+      "items": [
+        {
+          "type": "page",
+          "path": "notes/filler-speech-llm-eval.md"
+        }
+      ]
     }
   ]
 }
