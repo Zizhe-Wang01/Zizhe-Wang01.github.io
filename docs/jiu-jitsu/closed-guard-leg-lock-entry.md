@@ -1,4 +1,4 @@
-# Nogi 从 Closed Guard 进入锁腿
+# Closed Guard 进入锁腿
 
 ```markmap
 ---
@@ -11,7 +11,7 @@ markmap:
   lineWidth: 2
   duration: 250
 ---
-# Nogi 从 Closed Guard 进入锁腿
+# Closed Guard 进入锁腿
 - 对方站立
 - 对方跪姿
 ```
