@@ -89,6 +89,10 @@
         {
           "type": "page",
           "path": "latest-paper-reviews/kimi-k3.md"
+        },
+        {
+          "type": "page",
+          "path": "latest-paper-reviews/omni-interaction-agent-technical-report.md"
         }
       ]
     },
