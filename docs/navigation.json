@@ -191,12 +191,7 @@
       "pathPrefix": "notes",
       "childPrefix": "notes",
       "index": "notes/index.md",
-      "items": [
-        {
-          "type": "page",
-          "path": "notes/filler-speech-llm-eval.md"
-        }
-      ]
+      "items": []
     }
   ]
 }
