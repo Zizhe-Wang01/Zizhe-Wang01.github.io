@@ -119,28 +119,68 @@
           "path": "jiu-jitsu/overview.md"
         },
         {
-          "type": "page",
-          "path": "jiu-jitsu/nogi-basics.md"
+          "type": "section",
+          "id": "jiu-jitsu-gi",
+          "title": "Gi",
+          "pathPrefix": "jiu-jitsu/gi",
+          "childPrefix": "jiu-jitsu/gi",
+          "index": "jiu-jitsu/gi/index.md",
+          "items": [
+            {
+              "type": "page",
+              "path": "jiu-jitsu/gi/de-la-riva-guard.md"
+            },
+            {
+              "type": "page",
+              "path": "jiu-jitsu/gi/23-pass.md"
+            },
+            {
+              "type": "page",
+              "path": "jiu-jitsu/gi/double-sleeve-spider.md"
+            },
+            {
+              "type": "page",
+              "path": "jiu-jitsu/gi/passing-double-sleeve-spider.md"
+            },
+            {
+              "type": "page",
+              "path": "jiu-jitsu/gi/single-leg-x.md"
+            },
+            {
+              "type": "page",
+              "path": "jiu-jitsu/gi/passing-single-leg-x.md"
+            }
+          ]
         },
         {
-          "type": "page",
-          "path": "jiu-jitsu/de-la-riva-guard.md"
-        },
-        {
-          "type": "page",
-          "path": "jiu-jitsu/23-pass.md"
-        },
-        {
-          "type": "page",
-          "path": "jiu-jitsu/double-sleeve-spider.md"
-        },
-        {
-          "type": "page",
-          "path": "jiu-jitsu/passing-double-sleeve-spider.md"
-        },
-        {
-          "type": "page",
-          "path": "jiu-jitsu/closed-guard-leg-lock-entry.md"
+          "type": "section",
+          "id": "jiu-jitsu-nogi",
+          "title": "Nogi",
+          "pathPrefix": "jiu-jitsu/nogi",
+          "childPrefix": "jiu-jitsu/nogi",
+          "index": "jiu-jitsu/nogi/index.md",
+          "items": [
+            {
+              "type": "page",
+              "path": "jiu-jitsu/nogi/nogi-basics.md"
+            },
+            {
+              "type": "page",
+              "path": "jiu-jitsu/nogi/closed-guard-leg-lock-entry.md"
+            },
+            {
+              "type": "page",
+              "path": "jiu-jitsu/nogi/nogi-5050.md"
+            },
+            {
+              "type": "page",
+              "path": "jiu-jitsu/nogi/takedowns.md"
+            },
+            {
+              "type": "page",
+              "path": "jiu-jitsu/nogi/411.md"
+            }
+          ]
         }
       ]
     },
